@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: shopzone
+    runtime: node
+    repo: https://github.com/kawserhamid1/shopzonbd.git
+    branch: main
+    plan: free
+    startCommand: cd backend && node server.js
+    buildCommand: cd backend && npm install
+    envVars:
+      - key: JWT_SECRET
+        value: shopzone_kawsar_secret_2025
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: ADMIN_EMAIL
+        value: kawser@shopzone.com
+      - key: ADMIN_PASSWORD
+        value: Admin@ShopZone2025
+      - key: NODE_ENV
+        value: production
