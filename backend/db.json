@@ -1,0 +1,693 @@
+{
+  "admins": [
+    {
+      "id": 1,
+      "name": "Kawsar",
+      "email": "kawser@shopzone.com",
+      "password": "$2a$10$5v/vZoPfEbbl8C1uFD0I1.U5HiJNdC0F0i2TnqVN1l4X2Xph5MKhq",
+      "created_at": "2025-01-01"
+    }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "name": "Sony WH-1000XM5 Headphones",
+      "sku": "SON-WH1-001",
+      "brand": "Sony",
+      "category": "Electronics",
+      "price": 349.99,
+      "original_price": 399.99,
+      "cost": 180,
+      "stock": 15,
+      "sold": 234,
+      "rating": 4.8,
+      "reviews": 2847,
+      "badge": "Best Seller",
+      "image": "🎧",
+      "description": "Industry-leading noise canceling, 30hr battery.",
+      "tags": [
+        "wireless",
+        "noise-canceling",
+        "bluetooth"
+      ],
+      "status": "active"
+    },
+    {
+      "id": 2,
+      "name": "iPhone 15 Pro Max 256GB",
+      "sku": "APL-IP15-002",
+      "brand": "Apple",
+      "category": "Electronics",
+      "price": 1199,
+      "original_price": 1199,
+      "cost": 750,
+      "stock": 8,
+      "sold": 189,
+      "rating": 4.9,
+      "reviews": 5612,
+      "badge": "New",
+      "image": "📱",
+      "description": "A17 Pro chip, titanium, 48MP camera.",
+      "tags": [
+        "smartphone",
+        "5G",
+        "camera"
+      ],
+      "status": "active"
+    },
+    {
+      "id": 3,
+      "name": "Nike Air Max 270",
+      "sku": "NIK-AM270-003",
+      "brand": "Nike",
+      "category": "Fashion",
+      "price": 89.99,
+      "original_price": 130,
+      "cost": 42,
+      "stock": 22,
+      "sold": 312,
+      "rating": 4.6,
+      "reviews": 3421,
+      "badge": "Sale",
+      "image": "👟",
+      "description": "Max Air cushioning for all-day comfort.",
+      "tags": [
+        "running",
+        "sport"
+      ],
+      "status": "active"
+    },
+    {
+      "id": 4,
+      "name": "Samsung 65\" QLED 4K TV",
+      "sku": "SAM-TV65-004",
+      "brand": "Samsung",
+      "category": "Electronics",
+      "price": 899,
+      "original_price": 1299,
+      "cost": 520,
+      "stock": 15,
+      "sold": 67,
+      "rating": 4.7,
+      "reviews": 1893,
+      "badge": "30% Off",
+      "image": "📺",
+      "description": "Quantum Dot, 120Hz, Smart TV.",
+      "tags": [
+        "4K",
+        "smart",
+        "gaming"
+      ],
+      "status": "active"
+    },
+    {
+      "id": 5,
+      "name": "Instant Pot Duo 7-in-1",
+      "sku": "INS-DUO-005",
+      "brand": "Instant Pot",
+      "category": "Home & Kitchen",
+      "price": 79.95,
+      "original_price": 99.95,
+      "cost": 35,
+      "stock": 28,
+      "sold": 447,
+      "rating": 4.8,
+      "reviews": 8934,
+      "badge": "Best Seller",
+      "image": "🍲",
+      "description": "Pressure cooker, slow cooker, and more.",
+      "tags": [
+        "cooking",
+        "kitchen"
+      ],
+      "status": "active"
+    },
+    {
+      "id": 6,
+      "name": "Levi's 501 Original Jeans",
+      "sku": "LEV-501-006",
+      "brand": "Levi's",
+      "category": "Fashion",
+      "price": 59.5,
+      "original_price": 69.5,
+      "cost": 22,
+      "stock": 40,
+      "sold": 198,
+      "rating": 4.5,
+      "reviews": 2211,
+      "badge": null,
+      "image": "👖",
+      "description": "Original straight fit, button fly.",
+      "tags": [
+        "denim",
+        "classic"
+      ],
+      "status": "active"
+    },
+    {
+      "id": 7,
+      "name": "Kindle Paperwhite 16GB",
+      "sku": "AMZ-KPW-007",
+      "brand": "Amazon",
+      "category": "Electronics",
+      "price": 139.99,
+      "original_price": 159.99,
+      "cost": 70,
+      "stock": 18,
+      "sold": 276,
+      "rating": 4.7,
+      "reviews": 4521,
+      "badge": "Sale",
+      "image": "📚",
+      "description": "Waterproof, glare-free display.",
+      "tags": [
+        "ereader",
+        "reading"
+      ],
+      "status": "active"
+    },
+    {
+      "id": 8,
+      "name": "Dyson V15 Detect Vacuum",
+      "sku": "DYS-V15-008",
+      "brand": "Dyson",
+      "category": "Home & Kitchen",
+      "price": 649.99,
+      "original_price": 749.99,
+      "cost": 380,
+      "stock": 9,
+      "sold": 90,
+      "rating": 4.8,
+      "reviews": 1234,
+      "badge": null,
+      "image": "🔌",
+      "description": "Laser detects dust, auto-adjusts suction.",
+      "tags": [
+        "vacuum",
+        "cordless"
+      ],
+      "status": "active"
+    },
+    {
+      "id": 9,
+      "name": "LEGO Technic Bugatti Chiron",
+      "sku": "LEG-BUG-009",
+      "brand": "LEGO",
+      "category": "Toys & Games",
+      "price": 349.99,
+      "original_price": 349.99,
+      "cost": 160,
+      "stock": 12,
+      "sold": 54,
+      "rating": 4.9,
+      "reviews": 876,
+      "badge": "New",
+      "image": "🏎️",
+      "description": "3599 pieces, iconic supercar.",
+      "tags": [
+        "lego",
+        "building"
+      ],
+      "status": "active"
+    },
+    {
+      "id": 10,
+      "name": "Adidas Ultraboost 22",
+      "sku": "ADI-UB22-010",
+      "brand": "Adidas",
+      "category": "Fashion",
+      "price": 149.99,
+      "original_price": 190,
+      "cost": 65,
+      "stock": 25,
+      "sold": 267,
+      "rating": 4.7,
+      "reviews": 2987,
+      "badge": "Sale",
+      "image": "👟",
+      "description": "Responsive Boost midsole.",
+      "tags": [
+        "running",
+        "boost"
+      ],
+      "status": "active"
+    },
+    {
+      "id": 11,
+      "name": "KitchenAid Stand Mixer",
+      "sku": "KIT-STD-011",
+      "brand": "KitchenAid",
+      "category": "Home & Kitchen",
+      "price": 379.99,
+      "original_price": 449.99,
+      "cost": 200,
+      "stock": 7,
+      "sold": 134,
+      "rating": 4.9,
+      "reviews": 6543,
+      "badge": "Best Seller",
+      "image": "🥣",
+      "description": "5-quart bowl, 10 speeds.",
+      "tags": [
+        "baking",
+        "kitchen"
+      ],
+      "status": "active"
+    },
+    {
+      "id": 12,
+      "name": "MacBook Pro M3 14\"",
+      "sku": "APL-MBP-012",
+      "brand": "Apple",
+      "category": "Electronics",
+      "price": 1599,
+      "original_price": 1999,
+      "cost": 980,
+      "stock": 16,
+      "sold": 98,
+      "rating": 4.9,
+      "reviews": 3210,
+      "badge": "20% Off",
+      "image": "💻",
+      "description": "M3 chip, 18hr battery.",
+      "tags": [
+        "laptop",
+        "apple"
+      ],
+      "status": "active"
+    },
+    {
+      "id": 13,
+      "name": "Ray-Ban Wayfarer Sunglasses",
+      "sku": "RAY-WAY-013",
+      "brand": "Ray-Ban",
+      "category": "Fashion",
+      "price": 154,
+      "original_price": 154,
+      "cost": 60,
+      "stock": 35,
+      "sold": 176,
+      "rating": 4.7,
+      "reviews": 1876,
+      "badge": null,
+      "image": "🕶️",
+      "description": "Classic polarized lenses.",
+      "tags": [
+        "sunglasses",
+        "uv"
+      ],
+      "status": "active"
+    },
+    {
+      "id": 14,
+      "name": "Monopoly Board Game",
+      "sku": "HAS-MON-014",
+      "brand": "Hasbro",
+      "category": "Toys & Games",
+      "price": 24.99,
+      "original_price": 29.99,
+      "cost": 8,
+      "stock": 49,
+      "sold": 390,
+      "rating": 4.5,
+      "reviews": 9876,
+      "badge": "Sale",
+      "image": "🎲",
+      "description": "Classic property trading game.",
+      "tags": [
+        "boardgame",
+        "family"
+      ],
+      "status": "active"
+    },
+    {
+      "id": 15,
+      "name": "Vitamix E310 Blender",
+      "sku": "VIT-E310-015",
+      "brand": "Vitamix",
+      "category": "Home & Kitchen",
+      "price": 349.95,
+      "original_price": 449.95,
+      "cost": 180,
+      "stock": 14,
+      "sold": 112,
+      "rating": 4.8,
+      "reviews": 2341,
+      "badge": null,
+      "image": "🥤",
+      "description": "Aircraft-grade blades.",
+      "tags": [
+        "blender",
+        "smoothie"
+      ],
+      "status": "active"
+    },
+    {
+      "id": 16,
+      "name": "PlayStation 5 Console",
+      "sku": "SON-PS5-016",
+      "brand": "Sony",
+      "category": "Electronics",
+      "price": 499.99,
+      "original_price": 499.99,
+      "cost": 380,
+      "stock": 52,
+      "sold": 322,
+      "rating": 4.9,
+      "reviews": 7823,
+      "badge": "Hot",
+      "image": "🎮",
+      "description": "4K gaming, DualSense controller.",
+      "tags": [
+        "gaming",
+        "4K"
+      ],
+      "status": "active"
+    }
+  ],
+  "customers": [
+    {
+      "id": 1,
+      "name": "John Smith",
+      "email": "john@example.com",
+      "avatar_color": "#4f46e5",
+      "status": "active",
+      "created_at": "2024-01-15"
+    },
+    {
+      "id": 2,
+      "name": "Sarah Johnson",
+      "email": "sarah@example.com",
+      "avatar_color": "#0891b2",
+      "status": "vip",
+      "created_at": "2023-03-20"
+    },
+    {
+      "id": 3,
+      "name": "Mike Brown",
+      "email": "mike@example.com",
+      "avatar_color": "#059669",
+      "status": "active",
+      "created_at": "2023-11-05"
+    },
+    {
+      "id": 4,
+      "name": "Emily Davis",
+      "email": "emily@example.com",
+      "avatar_color": "#dc2626",
+      "status": "active",
+      "created_at": "2024-04-10"
+    },
+    {
+      "id": 5,
+      "name": "David Wilson",
+      "email": "david@example.com",
+      "avatar_color": "#7c3aed",
+      "status": "vip",
+      "created_at": "2022-09-01"
+    },
+    {
+      "id": 6,
+      "name": "Lisa Wang",
+      "email": "lisa@example.com",
+      "avatar_color": "#db2777",
+      "status": "new",
+      "created_at": "2024-06-01"
+    },
+    {
+      "id": null,
+      "name": "Test User",
+      "email": "test@test.com",
+      "avatar_color": "#6366f1",
+      "status": "new"
+    },
+    {
+      "id": 0,
+      "name": "kawser",
+      "email": "kawser@test-bd.com",
+      "avatar_color": "#6366f1",
+      "status": "new"
+    },
+    {
+      "id": 1,
+      "name": "hamid",
+      "email": "hamid@test.com",
+      "avatar_color": "#6366f1",
+      "status": "new"
+    },
+    {
+      "id": 2,
+      "name": "stoc",
+      "email": "stckj@test.com",
+      "avatar_color": "#6366f1",
+      "status": "new"
+    },
+    {
+      "id": 3,
+      "name": "Test User",
+      "email": "test@shopzone.com",
+      "avatar_color": "#ea580c",
+      "status": "new"
+    },
+    {
+      "id": 4,
+      "name": "New Customer",
+      "email": "new@shopzone.com",
+      "avatar_color": "#4f46e5",
+      "status": "new"
+    },
+    {
+      "id": 5,
+      "name": "Test User",
+      "email": "test2@shopzone.com",
+      "avatar_color": "#dc2626",
+      "status": "new"
+    }
+  ],
+  "orders": [
+    {
+      "id": "ORD-001",
+      "customer_id": 1,
+      "customer_name": "John Smith",
+      "customer_email": "john@example.com",
+      "subtotal": 969.97,
+      "tax": 77.6,
+      "shipping_cost": 0.4,
+      "total": 1047.97,
+      "status": "delivered",
+      "payment_method": "Credit Card",
+      "created_at": "2025-06-14"
+    },
+    {
+      "id": "ORD-002",
+      "customer_id": 2,
+      "customer_name": "Sarah Johnson",
+      "customer_email": "sarah@example.com",
+      "subtotal": 1109.26,
+      "tax": 88.74,
+      "shipping_cost": 0,
+      "total": 1199,
+      "status": "delivered",
+      "payment_method": "PayPal",
+      "created_at": "2025-06-14"
+    },
+    {
+      "id": "ORD-003",
+      "customer_id": 3,
+      "customer_name": "Mike Brown",
+      "customer_email": "mike@example.com",
+      "subtotal": 406.94,
+      "tax": 32.55,
+      "shipping_cost": 0,
+      "total": 439.49,
+      "status": "shipped",
+      "payment_method": "Credit Card",
+      "created_at": "2025-06-13"
+    },
+    {
+      "id": "ORD-004",
+      "customer_id": 4,
+      "customer_name": "Emily Davis",
+      "customer_email": "emily@example.com",
+      "subtotal": 166.64,
+      "tax": 13.33,
+      "shipping_cost": 0,
+      "total": 179.97,
+      "status": "delivered",
+      "payment_method": "Apple Pay",
+      "created_at": "2025-06-13"
+    },
+    {
+      "id": "ORD-005",
+      "customer_id": 5,
+      "customer_name": "David Wilson",
+      "customer_email": "david@example.com",
+      "subtotal": 2083.3,
+      "tax": 166.67,
+      "shipping_cost": 0,
+      "total": 2249.97,
+      "status": "delivered",
+      "payment_method": "Credit Card",
+      "created_at": "2025-06-12"
+    },
+    {
+      "id": "ORD-006",
+      "customer_id": 6,
+      "customer_name": "Lisa Wang",
+      "customer_email": "lisa@example.com",
+      "subtotal": 397.98,
+      "tax": 31.84,
+      "shipping_cost": 0.16,
+      "total": 429.98,
+      "status": "processing",
+      "payment_method": "PayPal",
+      "created_at": "2025-06-10"
+    },
+    {
+      "id": "ORD-MQQL5FOE",
+      "customer_id": null,
+      "customer_name": "Test User",
+      "customer_email": "test@test.com",
+      "subtotal": 499.99,
+      "tax": 40,
+      "shipping_cost": 0,
+      "total": 539.99,
+      "payment_method": "Credit Card",
+      "items": [
+        {
+          "product_id": 16,
+          "qty": 1,
+          "price": 499.99
+        }
+      ],
+      "status": "processing",
+      "created_at": "2026-06-23"
+    },
+    {
+      "id": "ORD-MQQLHD6T",
+      "customer_id": 0,
+      "customer_name": "kawser",
+      "customer_email": "kawser@test-bd.com",
+      "shipping_address": "69, mohakhali",
+      "subtotal": 79.95,
+      "tax": 6.4,
+      "shipping_cost": 9.99,
+      "total": 96.34,
+      "payment_method": "Credit Card",
+      "items": [
+        {
+          "product_id": 5,
+          "qty": 1,
+          "price": 79.95
+        }
+      ],
+      "status": "processing",
+      "created_at": "2026-06-23"
+    },
+    {
+      "id": "ORD-MQQLIIIO",
+      "customer_id": 1,
+      "customer_name": "hamid",
+      "customer_email": "hamid@test.com",
+      "shipping_address": "mohakhali",
+      "subtotal": 649.99,
+      "tax": 52,
+      "shipping_cost": 0,
+      "total": 701.99,
+      "payment_method": "Credit Card",
+      "items": [
+        {
+          "product_id": 8,
+          "qty": 1,
+          "price": 649.99
+        }
+      ],
+      "status": "delivered",
+      "created_at": "2026-06-23"
+    },
+    {
+      "id": "ORD-MQQLQFZJ",
+      "customer_id": 2,
+      "customer_name": "stoc",
+      "customer_email": "stckj@test.com",
+      "shipping_address": "mmmm",
+      "subtotal": 79.95,
+      "tax": 6.4,
+      "shipping_cost": 9.99,
+      "total": 96.34,
+      "payment_method": "Credit Card",
+      "items": [
+        {
+          "product_id": 5,
+          "qty": 1,
+          "price": 79.95
+        }
+      ],
+      "status": "processing",
+      "created_at": "2026-06-23"
+    },
+    {
+      "id": "ORD-MQT2SEJ9",
+      "customer_name": "Guest Customer",
+      "customer_email": "guest@shopzone.com",
+      "items": [
+        {
+          "product_id": 14,
+          "name": "Monopoly Board Game",
+          "qty": 1,
+          "price": 24.99
+        }
+      ],
+      "subtotal": 24.99,
+      "tax": 2,
+      "shipping_cost": 5.99,
+      "total": 32.98,
+      "payment_method": "N/A",
+      "status": "delivered",
+      "created_at": "2026-06-25"
+    }
+  ],
+  "next_customer_id": 6,
+  "registered_users": [
+    {
+      "id": 1782361641471,
+      "name": "Updated Name",
+      "email": "test@shopzone.com",
+      "password": "$2a$10$l5pIZURQAX02yplbi2W2.ekfabPAQTwWpPNfvOXuPdUD8rq/XfSgS",
+      "phone": "+880****9999",
+      "avatar_color": "#ea580c",
+      "created_at": "2026-06-25",
+      "status": "active"
+    },
+    {
+      "id": 1782362030989,
+      "name": "New Customer",
+      "email": "new@shopzone.com",
+      "password": "$2a$10$bwCAemlUX0ryBb9KfRxTQ.njNs/VVfooP7swLSZ1snOXVD6/CGQeS",
+      "phone": "+880****0000",
+      "avatar_color": "#4f46e5",
+      "created_at": "2026-06-25",
+      "status": "active"
+    },
+    {
+      "id": 1782366759276,
+      "name": "Test User",
+      "email": "test2@shopzone.com",
+      "password": "$2a$10$1Wy4zNFFj32kN2GtAfXjhegl2axxZh8asmR3.qFGHnub1eVx2ESrO",
+      "phone": "",
+      "avatar_color": "#dc2626",
+      "created_at": "2026-06-25",
+      "status": "active"
+    },
+    {
+      "id": 1782366887241,
+      "name": "kawser",
+      "email": "kawser@test-bd.com",
+      "password": "$2a$10$LFRV3gF7nyiWuK2XIVXEo.zANxUv.EkCbo.KtjQ5.TZSfYAi32H6G",
+      "phone": "01746393597",
+      "avatar_color": "#4f46e5",
+      "created_at": "2026-06-25",
+      "status": "active"
+    }
+  ]
+}
