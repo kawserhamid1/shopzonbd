@@ -282,6 +282,29 @@ tr:hover td{background:#f8fafc}
             <button class="btn btn-primary btn-sm" style="width:auto">Save Changes</button>
           </div>
           <div class="settings-card">
+            <h3>🚚 Shipping Info</h3>
+            <div class="form-group"><label>Free Shipping Threshold ($)</label><input type="number" id="shipFreeThreshold" value="100" min="0" step="1"></div>
+            <div class="form-group"><label>Standard Shipping Cost ($)</label><input type="number" id="shipCost" value="9.99" min="0" step="0.01"></div>
+            <div class="form-group"><label>Express Shipping Cost ($)</label><input type="number" id="shipExpress" value="19.99" min="0" step="0.01"></div>
+            <div class="form-group"><label>Processing Time</label><input type="text" id="shipProcessTime" value="1-2 business days"></div>
+            <div class="form-group"><label>Standard Delivery Time</label><input type="text" id="shipDeliveryTime" value="3-7 business days"></div>
+            <div class="form-group"><label>Express Delivery Time</label><input type="text" id="shipExpressTime" value="1-3 business days"></div>
+            <div class="form-group">
+              <label>Delivery Zones</label>
+              <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">
+                <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px"><input type="checkbox" checked> Bangladesh 🇧🇩</label>
+                <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px"><input type="checkbox" checked> India 🇮🇳</label>
+                <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px"><input type="checkbox" checked> USA 🇺🇸</label>
+                <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px"><input type="checkbox" checked> UK 🇬🇧</label>
+                <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px"><input type="checkbox"> Canada 🇨🇦</label>
+                <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px"><input type="checkbox"> Australia 🇦🇺</label>
+                <label style="display:flex;align-items:center;gap:6px;font-weight:400;font-size:13px"><input type="checkbox"> Europe 🇪🇺</label>
+              </div>
+            </div>
+            <div class="form-group"><label>Return Policy</label><textarea id="shipReturnPolicy" rows="3" style="width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px">30-day return policy. Items must be unused and in original packaging. Free return shipping for defective items.</textarea></div>
+            <button class="btn btn-primary btn-sm" style="width:auto" onclick="saveShippingSettings()">Save Shipping Settings</button>
+          </div>
+          <div class="settings-card">
             <h3>🔒 Admin Account</h3>
             <div class="form-group"><label>Admin Name</label><input type="text" value="Kawsar"></div>
             <div class="form-group"><label>Email</label><input type="email" value="kawser@shopzone.com"></div>
@@ -488,6 +511,24 @@ function setStatus(id,status){
     if(r.error)toast(r.error,'error');
     else{toast(r.message);loadOrders();loadDashboard();}
   });
+}
+
+// ===== SHIPPING SETTINGS =====
+function saveShippingSettings(){
+  const threshold=+document.getElementById('shipFreeThreshold').value;
+  const cost=+document.getElementById('shipCost').value;
+  const express=+document.getElementById('shipExpress').value;
+  const processTime=document.getElementById('shipProcessTime').value;
+  const deliveryTime=document.getElementById('shipDeliveryTime').value;
+  const expressTime=document.getElementById('shipExpressTime').value;
+  const returnPolicy=document.getElementById('shipReturnPolicy').value;
+  const zones=[...document.querySelectorAll('.settings-card:nth-child(2) input[type=checkbox]')].map((cb,i)=>{
+    const names=['Bangladesh','India','USA','UK','Canada','Australia','Europe'];
+    return {name:names[i],active:cb.checked};
+  }).filter(z=>z.active).map(z=>z.name);
+  const settings={freeThreshold:threshold,standardCost:cost,expressCost:express,processTime,deliveryTime,expressTime,zones,returnPolicy};
+  localStorage.setItem('sz_shipping',JSON.stringify(settings));
+  toast('Shipping settings saved! ✅');
 }
 
 // ===== INVENTORY =====
