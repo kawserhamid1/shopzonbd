@@ -564,7 +564,7 @@ async function processPayment(){
       if(error){showToast(error.message,'error');payBtn.style.display='block';processing.style.display='none';return}
     }
     // Step 3: Confirm on server and create order
-    const result = await PaymentsAPI.confirm(intent.paymentIntentId, name, address, email, subtotal, tax, shipping, total, items);
+    const result = await PaymentsAPI.confirm(intent.paymentIntentId, name, email, address, subtotal, tax, shipping, total, items);
     if(result.error){showToast(result.error,'error');payBtn.style.display='block';processing.style.display='none';return}
 
     Cart.clear();Cart.badge();

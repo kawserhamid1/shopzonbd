@@ -245,7 +245,7 @@ tr:hover td{background:#f8fafc}
             <div class="filter-tab" onclick="filterOrders('shipped',this)">Shipped</div>
             <div class="filter-tab" onclick="filterOrders('delivered',this)">Delivered</div>
           </div>
-          <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Email</th><th>Total</th><th>Payment</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody id="orderTable"></tbody></table></div>
+          <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Email</th><th>Address</th><th>Total</th><th>Payment</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody id="orderTable"></tbody></table></div>
         </div></div>
       </div>
 
@@ -475,7 +475,12 @@ let allOrders=[];
 function loadOrders(){
   OrdersAPI.getAll({limit:100}).then(d=>{
     allOrders=d.orders||[];
-    renderOrders(allOrders);
+    // Re-apply current filter
+    if(currentOrderFilter && currentOrderFilter!=='all'){
+      renderOrders(allOrders.filter(o=>o.status===currentOrderFilter));
+    } else {
+      renderOrders(allOrders);
+    }
   });
 }
 function renderOrders(orders){
@@ -484,6 +489,10 @@ function renderOrders(orders){
     const payDisplay = o.payment_method
       ? `<span class="badge badge-${o.payment_method==='Credit Card'?'green':o.payment_method==='PayPal'?'blue':'yellow'}">${o.payment_method}</span>`
       : '<span class="badge badge-gray">N/A</span>';
+    // Address display
+    const addr = o.shipping_address || '—';
+    // Ensure email is actually an email, not an address
+    const email = (o.customer_email && o.customer_email.includes('@')) ? o.customer_email : '—';
     // Action buttons based on status
     let actionBtns='';
     if(o.status==='pending'){
@@ -497,10 +506,12 @@ function renderOrders(orders){
     } else if(o.status==='cancelled'){
       actionBtns=`<span style="color:#dc2626;font-size:12px">Cancelled</span>`;
     }
-    return `<tr><td><strong>${o.id}</strong></td><td>${o.customer_name}</td><td>${o.customer_email}</td><td>$${(o.total||0).toFixed(2)}</td><td>${payDisplay}</td><td>${statusBadge(o.status)}</td><td>${o.created_at}</td><td>${actionBtns}</td></tr>`;
+    return `<tr><td><strong>${o.id}</strong></td><td>${o.customer_name||'—'}</td><td>${email}</td><td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${addr}">${addr}</td><td>$${(o.total||0).toFixed(2)}</td><td>${payDisplay}</td><td>${statusBadge(o.status)}</td><td>${o.created_at}</td><td>${actionBtns}</td></tr>`;
   }).join('');
 }
+let currentOrderFilter='all';
 function filterOrders(status,el){
+  currentOrderFilter=status;
   document.querySelectorAll('#orderTabs .filter-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   const f=status==='all'?allOrders:allOrders.filter(o=>o.status===status);
@@ -509,7 +520,12 @@ function filterOrders(status,el){
 function setStatus(id,status){
   OrdersAPI.updateStatus(id,status).then(r=>{
     if(r.error)toast(r.error,'error');
-    else{toast(r.message);loadOrders();loadDashboard();}
+    else{
+      toast(r.message);
+      loadOrders();
+      loadDashboard();
+      // Re-apply current filter after reload
+    }
   });
 }
 
