@@ -1,4 +1,5 @@
 const API = window.location.hostname==='localhost' ? 'http://localhost:3001/api' : '/api';
+// ShopZone API config - production ready
 const Auth = {
   getToken: () => localStorage.getItem('sz_token'),
   setToken: t  => localStorage.setItem('sz_token', t),
