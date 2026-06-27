@@ -378,7 +378,7 @@ function renderProducts(products){
           <span class="product-price">${fmt(p.price)}</span>
           ${p.original_price>p.price?`<span class="product-original">${fmt(p.original_price)}</span>`:''}
         </div>
-        <button class="add-cart-btn" onclick="addToCart(${p.id})">Add to Cart</button>
+        <button class="add-cart-btn" onclick="addToCart('${p._id}')">Add to Cart</button>
       </div>
     </div>`).join('');
 }
@@ -426,9 +426,12 @@ function renderCart(){
   document.getElementById('cartTotal').textContent=fmt(Cart.total());
 }
 function addToCart(id){
-  const p=allProducts.find(x=>x.id===id);
-  if(p)Cart.add(p);
-  Cart.badge();
+  const p=allProducts.find(x=>x._id===id);
+  if(p){
+    const cartP = {...p, id: p._id};
+    Cart.add(cartP);
+    Cart.badge();
+  }
 }
 function cartQty(id,q){
   const c=Cart.get();
