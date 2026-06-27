@@ -34,7 +34,7 @@ router.post('/', async (req, res) => {
     const order = await Order.create({
       id: orderId, customer_id: customer._id.toString(),
       customer_name, customer_email, subtotal, tax,
-      shipping_cost: shipping_cost || 0, total, status: 'processing',
+      shipping_cost: shipping_cost || 0, total, status: 'pending',
       payment_method: payment_method || 'Credit Card',
       shipping_method: shipping_method || 'standard',
       shipping_address: shipping_address || '',
