@@ -243,15 +243,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     <div>
       <h3>Customer Service</h3>
       <a href="#">Contact Us</a>
-      <a href="#" onclick="showShippingPage();return false">Shipping Info</a>
-      <a href="#" onclick="showRefundPolicy();return false">Returns & Refunds</a>
+      <h3>Customer Service</h3>
+      <a href="#">Contact Us</a>
       <a href="#">FAQ</a>
     </div>
     <div>
-      <h3>Contact</h3>
-      <a href="#">📧 support@shopzone.com</a>
-      <a href="#">📞 +880 1746-393597</a>
-      <a href="#">📍 Dhaka, Bangladesh</a>
+      <h3>Shipping Info</h3>
+      <div style="font-size:13px;line-height:1.8;color:#94a3b8">
+        <p style="margin-bottom:6px">📦 <strong style="color:#f8fafc">Free Shipping</strong> on orders over $100</p>
+        <p style="margin-bottom:6px">🚛 Standard: 3-7 business days ($9.99)</p>
+        <p style="margin-bottom:6px">⚡ Express: 1-3 business days ($19.99)</p>
+        <p>🌍 We ship to: Bangladesh, India, USA, UK</p>
+      </div>
+    </div>
+    <div>
+      <h3>Returns & Refunds</h3>
+      <div style="font-size:13px;line-height:1.8;color:#94a3b8">
+        <p style="margin-bottom:6px">✅ 30-day return policy from delivery date</p>
+        <p style="margin-bottom:6px">📋 Items must be unused and in original packaging</p>
+        <p style="margin-bottom:6px">🚚 Free return shipping for defective/damaged items</p>
+        <p style="margin-bottom:6px">💰 Refund processed within 5-7 business days</p>
+        <p>🚫 Non-refundable: personalized items, opened software, perishable goods</p>
+      </div>
     </div>
   </div>
   <div class="footer-bottom">
@@ -702,68 +715,14 @@ function openRefundForm(){
       <div class="form-group"><label>Additional Details</label><textarea id="refundDetails" rows="3" placeholder="Tell us more..." style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px"></textarea></div>
       <div style="display:flex;gap:10px;margin-top:10px">
         <button onclick="submitRefund()" style="flex:1;padding:12px;background:#dc2626;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">Submit Refund Request</button>
-        <button onclick="showRefundPolicy()" style="padding:12px 20px;background:#f1f5f9;color:#475569;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">Cancel</button>
+        <button onclick="closeOrders()" style="padding:12px 20px;background:#f1f5f9;color:#475569;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">Cancel</button>
       </div>
     </div>`;
 }
 
 // ===== REFUND POLICY (Footer link) =====
 function showRefundPolicy(){
-  document.getElementById('ordersContent').innerHTML=`
-    <h2 style="padding:16px 20px;font-size:18px;font-weight:700;border-bottom:1px solid #f1f5f9">🔄 Returns & Refunds Policy</h2>
-    <div style="padding:20px;font-size:14px;line-height:1.7" id="refundPolicyContent">
-      <div style="text-align:center;padding:20px"><div style="width:28px;height:28px;border:3px solid #e2e8f0;border-top-color:#4f46e5;border-radius:50%;animation:spin .6s linear infinite;margin:0 auto"></div><p style="margin-top:12px;color:#64748b">Loading...</p></div>
-    </div>`;
-  document.getElementById('ordersModal').classList.add('open');
-  // Load dynamic terms from API
-  fetch(API+'/settings/terms').then(r=>r.json()).then(s=>{
-    const content = document.getElementById('refundPolicyContent');
-    if(s.termsAndConditions){
-      content.innerHTML = `<div style="white-space:pre-wrap;color:#374151;font-size:14px;line-height:1.8">${s.termsAndConditions}</div>`;
-    } else {
-      content.innerHTML = '<p style="color:#64748b">No terms configured.</p>';
-    }
-    content.innerHTML += `
-      <div style="margin-top:20px;padding-top:16px;border-top:1px solid #f1f5f9">
-        <h3 style="font-size:16px;font-weight:700;margin-bottom:8px">📋 Refund Policy</h3>
-        <p style="color:#64748b;margin-bottom:16px">${s.refundPolicy||'30-day return policy. Items must be unused and in original packaging. Free return shipping for defective items.'}</p>
-      </div>
-      <div style="text-align:center;margin-top:16px">
-        <button onclick="openRefundForm()" style="padding:12px 28px;background:#dc2626;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:.2s">🔄 Request a Refund</button>
-      </div>`;
-  }).catch(()=>{
-    document.getElementById('refundPolicyContent').innerHTML = `
-      <div style="background:#f0fdf4;border-radius:10px;padding:14px;margin-bottom:16px;border:1px solid #bbf7d0">
-        <h3 style="font-size:16px;font-weight:700;margin-bottom:8px;color:#15803d">✅ 30-Day Return Policy</h3>
-        <p style="color:#64748b">You have <strong>30 days from delivery date</strong> to request a return. Items must be unused and in original packaging.</p>
-      </div>
-      <h3 style="font-size:16px;font-weight:700;margin-bottom:8px">📋 Return Conditions</h3>
-      <ul style="padding-left:18px;color:#64748b;margin-bottom:16px">
-        <li style="margin-bottom:6px">Items must be <strong>unused</strong> and in <strong>original packaging</strong></li>
-        <li style="margin-bottom:6px">Include all accessories, manuals, and free gifts</li>
-        <li style="margin-bottom:6px">Proof of purchase (order ID) required</li>
-      </ul>
-      <h3 style="font-size:16px;font-weight:700;margin-bottom:8px">🚚 Return Shipping</h3>
-      <div style="background:#eff6ff;border-radius:10px;padding:14px;margin-bottom:16px;border:1px solid #bfdbfe">
-        <p style="color:#64748b;margin-bottom:8px">✅ <strong>FREE return shipping</strong> for defective or damaged items</p>
-        <p style="color:#64748b">Standard return shipping fee: <strong>$5.99</strong> (deducted from refund)</p>
-      </div>
-      <h3 style="font-size:16px;font-weight:700;margin-bottom:8px">💰 Refund Processing</h3>
-      <p style="color:#64748b;margin-bottom:16px">Refunds are processed within <strong>5-7 business days</strong> after we receive and inspect the item. Refund will be credited to your original payment method.</p>
-      <h3 style="font-size:16px;font-weight:700;margin-bottom:8px">🚫 Non-Refundable Items</h3>
-      <div style="background:#fef2f2;border-radius:10px;padding:14px;margin-bottom:16px;border:1px solid #fecaca">
-        <ul style="padding-left:18px;color:#64748b;margin:0">
-          <li style="margin-bottom:6px">Personalized/custom items</li>
-          <li style="margin-bottom:6px">Opened software or digital products</li>
-          <li style="margin-bottom:6px">Perishable goods</li>
-          <li style="margin-bottom:6px">Intimate/hygiene items</li>
-          <li>Gift cards</li>
-        </ul>
-      </div>
-      <div style="text-align:center;margin-top:16px">
-        <button onclick="openRefundForm()" style="padding:12px 28px;background:#dc2626;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:.2s">🔄 Request a Refund</button>
-      </div>`;
-  });
+  // No modal needed — info is displayed directly in footer
 }
 
 async function submitRefund(){
