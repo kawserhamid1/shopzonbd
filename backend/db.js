@@ -65,7 +65,7 @@ async function seedData() {
   if (orderCount === 0) {
     await Order.insertMany([
       { id:'ORD-001', customer_name:'John Smith',    customer_email:'john@example.com',  subtotal:969.97,  tax:77.60,  shipping_cost:0.40, total:1047.97, status:'delivered',  payment_method:'Credit Card', shipping_address:'123 Main St, NY' },
-      { id:'ORD-002', customer_name:'Sarah Johnson', customer_email:'sarah@example.com', subtotal:1109.26, tax:88.74,  shipping_cost:0,    total:1199.00, status:'processing', payment_method:'PayPal',       shipping_address:'456 Oak Ave, LA' },
+      { id:'ORD-002', customer_name:'Sarah Johnson', customer_email:'sarah@example.com', subtotal:1109.26, tax:88.74,  shipping_cost:0,    total:1199.00, status:'pending',    payment_method:'PayPal',       shipping_address:'456 Oak Ave, LA' },
       { id:'ORD-003', customer_name:'Mike Brown',    customer_email:'mike@example.com',  subtotal:406.94,  tax:32.55,  shipping_cost:0,    total:439.49,  status:'shipped',    payment_method:'Credit Card', shipping_address:'789 Pine Rd, TX' },
       { id:'ORD-004', customer_name:'Emily Davis',   customer_email:'emily@example.com', subtotal:166.64,  tax:13.33,  shipping_cost:0,    total:179.97,  status:'delivered',  payment_method:'Apple Pay',   shipping_address:'321 Elm St, FL' },
       { id:'ORD-005', customer_name:'David Wilson',  customer_email:'david@example.com', subtotal:2083.30, tax:166.67, shipping_cost:0,    total:2249.97, status:'delivered',  payment_method:'Credit Card', shipping_address:'555 Maple Dr, WA' },
