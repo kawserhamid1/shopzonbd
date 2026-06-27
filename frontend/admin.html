@@ -425,7 +425,7 @@ function loadDashboard(){
     const inv=prods.filter(p=>p.stock<=8);
     const ls=document.getElementById('lowStockList');
     if(!inv.length)ls.innerHTML='<p style="color:#64748b;font-size:13px">✅ All stock levels healthy</p>';
-    else ls.innerHTML=inv.map(p=>`<div class="low-stock-item"><span class="name">${p.name}</span><span class="stock">${p.stock} left</span><button class="btn btn-warning btn-xs" onclick="restockProd(${p.id})">Restock</button></div>`).join('');
+    else ls.innerHTML=inv.map(p=>`<div class="low-stock-item"><span class="name">${p.name}</span><span class="stock">${p.stock} left</span><button class="btn btn-warning btn-xs" onclick="restockProd('${p._id}')">Restock</button></div>`).join('');
   });
   OrdersAPI.getAll().then(d=>{
     const orders=d.orders||[];
@@ -456,21 +456,21 @@ function loadProducts(){
   });
 }
 function renderProducts(prods){
-  document.getElementById('prodTable').innerHTML=prods.map(p=>`<tr><td>${p.id}</td><td><strong>${p.name}</strong></td><td>${p.brand}</td><td>${p.category}</td><td>$${p.price.toFixed(2)}</td><td style="color:${p.stock<=8?'#dc2626':'inherit'};font-weight:${p.stock<=8?'700':'400'}">${p.stock}</td><td>${p.sold}</td><td><button class="btn btn-primary btn-xs" onclick="editProd(${p.id})">Edit</button> <button class="btn btn-warning btn-xs" onclick="openRestock(${p.id})">Restock</button></td></tr>`).join('');
+  document.getElementById('prodTable').innerHTML=prods.map(p=>`<tr><td>${p._id}</td><td><strong>${p.name}</strong></td><td>${p.brand}</td><td>${p.category}</td><td>$${p.price.toFixed(2)}</td><td style="color:${p.stock<=8?'#dc2626':'inherit'};font-weight:${p.stock<=8?'700':'400'}">${p.stock}</td><td>${p.sold}</td><td><button class="btn btn-primary btn-xs" onclick="editProd('${p._id}')">Edit</button> <button class="btn btn-warning btn-xs" onclick="openRestock('${p._id}')">Restock</button></td></tr>`).join('');
 }
 function filterProducts(q){
   const f=allProducts.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())||p.brand.toLowerCase().includes(q.toLowerCase()));
   renderProducts(f);
 }
 function editProd(id){
-  const p=allProducts.find(x=>x.id==id);
+  const p=allProducts.find(x=>x._id==id);
   if(!p)return;
   document.getElementById('editModalBody').innerHTML=`
     <div class="form-group"><label>Name</label><input id="epName" value="${p.name}"></div>
     <div class="form-group"><label>Price</label><input id="epPrice" type="number" step="0.01" value="${p.price}"></div>
     <div class="form-group"><label>Stock</label><input id="epStock" type="number" value="${p.stock}"></div>
     <div class="form-group"><label>Description</label><input id="epDesc" value="${p.description||''}"></div>
-    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:10px"><button class="btn btn-sm" style="background:#f1f5f9;width:auto" onclick="closeModal('editModal')">Cancel</button><button class="btn btn-primary btn-sm" style="width:auto" onclick="saveProd(${p.id})">Save</button></div>`;
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:10px"><button class="btn btn-sm" style="background:#f1f5f9;width:auto" onclick="closeModal('editModal')">Cancel</button><button class="btn btn-primary btn-sm" style="width:auto" onclick="saveProd('${p._id}')">Save</button></div>`;
   document.getElementById('editModal').classList.add('open');
 }
 function saveProd(id){
@@ -481,19 +481,19 @@ function saveProd(id){
   });
 }
 function openRestock(id){
-  const p=allProducts.find(x=>x.id==id);
+  const p=allProducts.find(x=>x._id==id);
   if(!p)return;
   document.getElementById('restockModalBody').innerHTML=`
     <p style="margin-bottom:12px;font-size:13px;color:#64748b">${p.name} — Current stock: <strong>${p.stock}</strong></p>
     <div class="form-group"><label>Add Quantity</label><input type="number" id="restockQty" value="50" min="1"></div>
-    <div style="display:flex;justify-content:flex-end;gap:10px"><button class="btn btn-sm" style="background:#f1f5f9;width:auto" onclick="closeModal('restockModal')">Cancel</button><button class="btn btn-success btn-sm" style="width:auto" onclick="restockProd(${id})">Restock</button></div>`;
+    <div style="display:flex;justify-content:flex-end;gap:10px"><button class="btn btn-sm" style="background:#f1f5f9;width:auto" onclick="closeModal('restockModal')">Cancel</button><button class="btn btn-success btn-sm" style="width:auto" onclick="restockProd('${p._id}')">Restock</button></div>`;
   document.getElementById('restockModal').classList.add('open');
 }
 function restockProd(id){
-  const qty=+(document.getElementById('restockQty')?.value||50);
+  const qty=parseInt(document.getElementById('restockQty').value)||50;
   ProductsAPI.restock(id,qty).then(r=>{
     if(r.error)toast(r.error,'error');
-    else{toast(`Restocked! New stock: ${r.new_stock}`);closeModal('restockModal');closeModal('editModal');loadProducts();loadDashboard();}
+    else{toast(`Restocked +${qty}. New stock: ${r.new_stock}`);closeModal('restockModal');loadProducts();loadDashboard();}
   });
 }
 
