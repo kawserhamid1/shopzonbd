@@ -376,13 +376,23 @@ tr:hover td{background:#f8fafc}
 function doLogin(){
   const email=document.getElementById('loginEmail').value;
   const pass=document.getElementById('loginPass').value;
+  if(!email||!pass){document.getElementById('loginErr').textContent='Email and password required';document.getElementById('loginErr').style.display='block';return}
+  document.getElementById('loginErr').style.display='none';
+  const btn = document.querySelector('#loginPage button');
+  btn.disabled = true;
+  btn.textContent = 'Signing in...';
   AdminAuthAPI.login(email,pass).then(r=>{
-    if(r.error){document.getElementById('loginErr').textContent=r.error;document.getElementById('loginErr').style.display='block';return}
+    if(r.error){document.getElementById('loginErr').textContent=r.error;document.getElementById('loginErr').style.display='block';btn.disabled=false;btn.textContent='Sign In';return}
     Auth.setToken(r.token);
     document.getElementById('adminName').textContent=r.admin?.name||'Admin';
     document.getElementById('loginPage').style.display='none';
     document.getElementById('appPage').style.display='flex';
     loadDashboard();
+  }).catch(e=>{
+    document.getElementById('loginErr').textContent='Login failed. Check your connection.';
+    document.getElementById('loginErr').style.display='block';
+    btn.disabled=false;
+    btn.textContent='Sign In';
   });
 }
 function doLogout(){
@@ -801,11 +811,12 @@ function saveTerms(){
 function closeModal(id){document.getElementById(id).classList.remove('open')}
 function statusBadge(st){
   const m={active:'badge-green',vip:'badge-purple',new:'badge-blue',delivered:'badge-green',shipped:'badge-blue',processing:'badge-yellow',pending:'badge-red',cancelled:'badge-red'};
-  }
+  return `<span class="badge ${m[st]||'badge-gray'}">${st}</span>`;
+}
 
-  // ===== INIT =====
-  loadProducts();
-  Cart.badge();
+// ===== INIT =====
+loadProducts();
+Cart.badge();
   // Auto-refresh orders every 30 seconds for new order notifications
   setInterval(()=>{
     if(document.getElementById('page-orders')?.classList.contains('active') || document.getElementById('page-dashboard')?.classList.contains('active')){

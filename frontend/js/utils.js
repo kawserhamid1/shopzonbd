@@ -8,11 +8,6 @@ function showToast(msg, type='success') {
 }
 function fmt(n) { return '$' + parseFloat(n||0).toFixed(2); }
 function stars(r) { let s=''; for(let i=1;i<=5;i++) s+=`<span style="color:${i<=Math.floor(r)?'#f59e0b':'#d1d5db'}">★</span>`; return s; }
-function statusBadge(st) {
-  const m = {active:'#dcfce7|#15803d',vip:'#fef9c3|#a16207',new:'#dbeafe|#1d4ed8',delivered:'#dcfce7|#15803d',shipped:'#dbeafe|#1d4ed8',processing:'#fef9c3|#a16207',pending:'#fee2e2|#dc2626',cancelled:'#fee2e2|#dc2626'};
-  const [bg,c] = (m[st]||'#f3f4f6|#374151').split('|');
-  return `<span style="background:${bg};color:${c};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600">${st}</span>`;
-}
 const Cart = {
   get: () => JSON.parse(localStorage.getItem('sz_cart')||'[]'),
   save(items) { localStorage.setItem('sz_cart',JSON.stringify(items)); this.badge(); },
