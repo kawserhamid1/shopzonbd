@@ -34,3 +34,9 @@ const AdminAuthAPI  = { login:(e,p) => fetch(API+'/auth/login',{method:'POST',he
 const RefundsAPI = {
   getAll: () => fetch(API+'/refunds',{headers:Auth.headers()}).then(r=>r.json())
 };
+const SettingsAPI = {
+  get: () => fetch(API+'/settings').then(r=>r.json()),
+  getTerms: () => fetch(API+'/settings/terms').then(r=>r.json()),
+  updateTerms: (data) => fetch(API+'/settings/terms',{method:'PUT',headers:Auth.headers(),body:JSON.stringify(data)}).then(r=>r.json()),
+  update: (data) => fetch(API+'/settings',{method:'PUT',headers:Auth.headers(),body:JSON.stringify(data)}).then(r=>r.json())
+};

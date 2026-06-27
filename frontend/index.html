@@ -711,28 +711,45 @@ function openRefundForm(){
 function showRefundPolicy(){
   document.getElementById('ordersContent').innerHTML=`
     <h2 style="padding:16px 20px;font-size:18px;font-weight:700;border-bottom:1px solid #f1f5f9">🔄 Returns & Refunds Policy</h2>
-    <div style="padding:20px;font-size:14px;line-height:1.7">
+    <div style="padding:20px;font-size:14px;line-height:1.7" id="refundPolicyContent">
+      <div style="text-align:center;padding:20px"><div style="width:28px;height:28px;border:3px solid #e2e8f0;border-top-color:#4f46e5;border-radius:50%;animation:spin .6s linear infinite;margin:0 auto"></div><p style="margin-top:12px;color:#64748b">Loading...</p></div>
+    </div>`;
+  document.getElementById('ordersModal').classList.add('open');
+  // Load dynamic terms from API
+  fetch(API+'/settings/terms').then(r=>r.json()).then(s=>{
+    const content = document.getElementById('refundPolicyContent');
+    if(s.termsAndConditions){
+      content.innerHTML = `<div style="white-space:pre-wrap;color:#374151;font-size:14px;line-height:1.8">${s.termsAndConditions}</div>`;
+    } else {
+      content.innerHTML = '<p style="color:#64748b">No terms configured.</p>';
+    }
+    content.innerHTML += `
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid #f1f5f9">
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:8px">📋 Refund Policy</h3>
+        <p style="color:#64748b;margin-bottom:16px">${s.refundPolicy||'30-day return policy. Items must be unused and in original packaging. Free return shipping for defective items.'}</p>
+      </div>
+      <div style="text-align:center;margin-top:16px">
+        <button onclick="openRefundForm()" style="padding:12px 28px;background:#dc2626;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:.2s">🔄 Request a Refund</button>
+      </div>`;
+  }).catch(()=>{
+    document.getElementById('refundPolicyContent').innerHTML = `
       <div style="background:#f0fdf4;border-radius:10px;padding:14px;margin-bottom:16px;border:1px solid #bbf7d0">
         <h3 style="font-size:16px;font-weight:700;margin-bottom:8px;color:#15803d">✅ 30-Day Return Policy</h3>
         <p style="color:#64748b">You have <strong>30 days from delivery date</strong> to request a return. Items must be unused and in original packaging.</p>
       </div>
-
       <h3 style="font-size:16px;font-weight:700;margin-bottom:8px">📋 Return Conditions</h3>
       <ul style="padding-left:18px;color:#64748b;margin-bottom:16px">
         <li style="margin-bottom:6px">Items must be <strong>unused</strong> and in <strong>original packaging</strong></li>
         <li style="margin-bottom:6px">Include all accessories, manuals, and free gifts</li>
         <li style="margin-bottom:6px">Proof of purchase (order ID) required</li>
       </ul>
-
       <h3 style="font-size:16px;font-weight:700;margin-bottom:8px">🚚 Return Shipping</h3>
       <div style="background:#eff6ff;border-radius:10px;padding:14px;margin-bottom:16px;border:1px solid #bfdbfe">
         <p style="color:#64748b;margin-bottom:8px">✅ <strong>FREE return shipping</strong> for defective or damaged items</p>
         <p style="color:#64748b">Standard return shipping fee: <strong>$5.99</strong> (deducted from refund)</p>
       </div>
-
       <h3 style="font-size:16px;font-weight:700;margin-bottom:8px">💰 Refund Processing</h3>
       <p style="color:#64748b;margin-bottom:16px">Refunds are processed within <strong>5-7 business days</strong> after we receive and inspect the item. Refund will be credited to your original payment method.</p>
-
       <h3 style="font-size:16px;font-weight:700;margin-bottom:8px">🚫 Non-Refundable Items</h3>
       <div style="background:#fef2f2;border-radius:10px;padding:14px;margin-bottom:16px;border:1px solid #fecaca">
         <ul style="padding-left:18px;color:#64748b;margin:0">
@@ -743,12 +760,10 @@ function showRefundPolicy(){
           <li>Gift cards</li>
         </ul>
       </div>
-
       <div style="text-align:center;margin-top:16px">
         <button onclick="openRefundForm()" style="padding:12px 28px;background:#dc2626;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:.2s">🔄 Request a Refund</button>
-      </div>
-    </div>`;
-  document.getElementById('ordersModal').classList.add('open');
+      </div>`;
+  });
 }
 
 async function submitRefund(){
@@ -757,8 +772,15 @@ async function submitRefund(){
   const reason=document.getElementById('refundReason').value;
   const details=document.getElementById('refundDetails').value.trim();
   if(!orderId||!email||!reason)return showToast('Fill all required fields','error');
-  showToast('Refund request submitted! We will contact you within 24 hours. 📧');
-  setTimeout(()=>showShippingPage(),1500);
+  try{
+    const res=await fetch(API+'/refunds',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({order_id:orderId,email,reason,details})});
+    const data=await res.json();
+    if(data.error)return showToast(data.error,'error');
+    showToast('Refund request submitted! ID: '+data.refund_id+' 📧');
+    setTimeout(()=>closeOrders(),1500);
+  }catch(e){
+    showToast('Failed to submit. Try again.','error');
+  }
 }
 async function trackOrder(){
   const id=document.getElementById('trackOid').value.trim();

@@ -338,6 +338,14 @@ tr:hover td{background:#f8fafc}
             <div class="form-group"><label>Confirm Password</label><input type="password" placeholder="Confirm new password"></div>
             <button class="btn btn-success btn-sm" style="width:auto">Update Account</button>
           </div>
+          <div class="settings-card">
+            <h3>📜 Terms & Conditions</h3>
+            <p style="font-size:12px;color:#64748b;margin-bottom:10px">Edit the terms and conditions displayed on the footer Returns & Refunds section.</p>
+            <div class="form-group"><label>Terms & Conditions</label><textarea id="termsEditor" rows="8" style="width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit"></textarea></div>
+            <div class="form-group"><label>Refund Policy (short text)</label><textarea id="refundPolicyEditor" rows="4" style="width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit"></textarea></div>
+            <button class="btn btn-primary btn-sm" style="width:auto" onclick="saveTerms()">Save Terms & Policy</button>
+            <div id="termsSaveMsg" style="display:none;margin-top:8px;font-size:13px;color:#15803d">✅ Saved successfully!</div>
+          </div>
         </div>
       </div>
 
@@ -401,6 +409,7 @@ function showPage(name,el){
   if(name==='inventory')loadInventory();
   if(name==='analytics')loadAnalytics();
   if(name==='customers')loadCustomers();
+  if(name==='settings')loadSettings();
 }
 function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('closed');
@@ -588,7 +597,7 @@ function loadInventory(){
       <div class="stat-card"><div class="stat-icon green">💰</div><div class="stat-info"><div class="label">Cost Value</div><div class="value">$${costVal.toLocaleString(undefined,{maximumFractionDigits:0})}</div></div></div>
       <div class="stat-card"><div class="stat-icon yellow">🏷️</div><div class="stat-info"><div class="label">Retail Value</div><div class="value">$${retailVal.toLocaleString(undefined,{maximumFractionDigits:0})}</div></div></div>
       <div class="stat-card"><div class="stat-icon purple">⚠️</div><div class="stat-info"><div class="label">Low / Critical</div><div class="value">${low} / ${crit}</div></div></div>`;
-    document.getElementById('invTable').innerHTML=prods.sort((a,b)=>a.stock-b.stock).map(p=>{const val=p.price*p.stock;const st=p.stock<=3?'critical':p.stock<=8?'low':'ok';return `<tr><td><strong>${p.name}</strong></td><td>${p.sku}</td><td style="color:${st==='critical'?'#dc2626':st==='low'?'#d97706':'inherit'};font-weight:700">${p.stock}</td><td>$${p.cost.toFixed(2)}</td><td>$${p.price.toFixed(2)}</td><td>$${val.toFixed(2)}</td><td>${st==='critical'?'<span class="badge badge-red">Critical</span>':st==='low'?'<span class="badge badge-yellow">Low</span>':'<span class="badge badge-green">OK</span>'}</td><td><button class="btn btn-warning btn-xs" onclick="openRestock(${p.id})">Restock</button></td></tr>`;}).join('');
+    document.getElementById('invTable').innerHTML=prods.sort((a,b)=>a.stock-b.stock).map(p=>{const val=p.price*p.stock;const st=p.stock<=3?'critical':p.stock<=8?'low':'ok';return `<tr><td><strong>${p.name}</strong></td><td>${p.sku}</td><td style="color:${st==='critical'?'#dc2626':st==='low'?'#d97706':'inherit'};font-weight:700">${p.stock}</td><td>$${p.cost.toFixed(2)}</td><td>$${p.price.toFixed(2)}</td><td>$${val.toFixed(2)}</td><td>${st==='critical'?'<span class="badge badge-red">Critical</span>':st==='low'?'<span class="badge badge-yellow">Low</span>':'<span class="badge badge-green">OK</span>'}</td><td><button class="btn btn-warning btn-xs" onclick="openRestock('${p._id}')">Restock</button></td></tr>`;}).join('');
   });
 }
 
@@ -728,6 +737,24 @@ async function updateRefundStatus(id,status){
     toast(`${id} → ${status}`);
     loadReturns();
   }catch(e){toast('Failed to update','error');}
+}
+
+// ===== SETTINGS =====
+function loadSettings(){
+  SettingsAPI.getTerms().then(s=>{
+    document.getElementById('termsEditor').value = s.termsAndConditions || '';
+    document.getElementById('refundPolicyEditor').value = s.refundPolicy || '';
+  }).catch(()=>{});
+}
+function saveTerms(){
+  const terms = document.getElementById('termsEditor').value;
+  const refundPolicy = document.getElementById('refundPolicyEditor').value;
+  SettingsAPI.updateTerms({ termsAndConditions: terms, refundPolicy }).then(r=>{
+    if(r.error) return toast(r.error, 'error');
+    document.getElementById('termsSaveMsg').style.display = 'block';
+    setTimeout(()=>{ document.getElementById('termsSaveMsg').style.display = 'none'; }, 3000);
+    toast('Terms & Policy updated! ✅');
+  }).catch(()=>toast('Failed to save','error'));
 }
 
 // ===== HELPERS =====
