@@ -31,3 +31,6 @@ const CustomersAPI  = { getAll: ()  => fetch(API+'/customers',{headers:Auth.head
 const InventoryAPI  = { get:    ()  => fetch(API+'/inventory',{headers:Auth.headers()}).then(r=>r.json()) };
 const AnalyticsAPI  = { summary:()  => fetch(API+'/analytics/summary',{headers:Auth.headers()}).then(r=>r.json()) };
 const AdminAuthAPI  = { login:(e,p) => fetch(API+'/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e,password:p})}).then(r=>r.json()) };
+const RefundsAPI = {
+  getAll: () => fetch(API+'/refunds',{headers:Auth.headers()}).then(r=>r.json())
+};

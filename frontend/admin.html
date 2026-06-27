@@ -191,6 +191,7 @@ tr:hover td{background:#f8fafc}
       <div class="nav-item active" onclick="showPage('dashboard',this)"><span class="icon">📊</span> Dashboard</div>
       <div class="nav-item" onclick="showPage('products',this)"><span class="icon">📦</span> Products</div>
       <div class="nav-item" onclick="showPage('orders',this)"><span class="icon">🛍️</span> Orders</div>
+      <div class="nav-item" onclick="showPage('returns',this)"><span class="icon">🔄</span> Returns</div>
       <div class="nav-item" onclick="showPage('inventory',this)"><span class="icon">📋</span> Inventory</div>
       <div class="nav-item" onclick="showPage('analytics',this)"><span class="icon">📈</span> Analytics</div>
       <div class="nav-item" onclick="showPage('customers',this)"><span class="icon">👥</span> Customers</div>
@@ -257,6 +258,20 @@ tr:hover td{background:#f8fafc}
             <div class="filter-tab" onclick="filterOrders('delivered',this)">Delivered</div>
           </div>
           <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Email</th><th>Address</th><th>Total</th><th>Payment</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody id="orderTable"></tbody></table></div>
+        </div></div>
+      </div>
+
+      <!-- RETURNS & REFUNDS -->
+      <div class="page" id="page-returns">
+        <div class="card"><div class="card-header"><h3>🔄 Refund Requests</h3></div><div class="card-body">
+          <div class="filter-tabs" id="returnTabs">
+            <div class="filter-tab active" onclick="filterReturns('all',this)">All</div>
+            <div class="filter-tab" onclick="filterReturns('pending',this)">Pending</div>
+            <div class="filter-tab" onclick="filterReturns('approved',this)">Approved</div>
+            <div class="filter-tab" onclick="filterReturns('rejected',this)">Rejected</div>
+            <div class="filter-tab" onclick="filterReturns('processed',this)">Processed</div>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>Refund ID</th><th>Order ID</th><th>Customer</th><th>Email</th><th>Reason</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody id="returnTable"></tbody></table></div>
         </div></div>
       </div>
 
@@ -377,11 +392,12 @@ function showPage(name,el){
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   if(el)el.classList.add('active');
-  const titles={dashboard:'Dashboard',products:'Products',orders:'Orders',inventory:'Inventory',analytics:'Analytics',customers:'Customers',settings:'Settings'};
+  const titles={dashboard:'Dashboard',products:'Products',orders:'Orders',returns:'Returns',inventory:'Inventory',analytics:'Analytics',customers:'Customers',settings:'Settings'};
   document.getElementById('pageTitle').textContent=titles[name]||name;
   if(name==='dashboard')loadDashboard();
   if(name==='products')loadProducts();
   if(name==='orders')loadOrders();
+  if(name==='returns')loadReturns();
   if(name==='inventory')loadInventory();
   if(name==='analytics')loadAnalytics();
   if(name==='customers')loadCustomers();
@@ -666,6 +682,53 @@ document.addEventListener('click',e=>{
     if(p)p.style.display='none';
   }
 });
+
+// ===== RETURNS & REFUNDS =====
+async function loadReturns(){
+  try{
+    const data=await RefundsAPI.getAll();
+    const refunds=data.refunds||[];
+    document.getElementById('returnTable').innerHTML=refunds.map(r=>{
+      const reasonMap={defective:'Defective/Damaged',wrong:'Wrong Item',not_as_described:'Not as Described',changed_mind:'Changed Mind',late_delivery:'Late Delivery',other:'Other'};
+      const statusBadge=r.status==='pending'?'badge-yellow':r.status==='approved'?'badge-green':r.status==='rejected'?'badge-red':r.status==='processed'?'badge-blue':'badge-gray';
+      return `<tr>
+        <td><strong>${r.id}</strong></td>
+        <td>${r.order_id}</td>
+        <td>${r.customer_name||'—'}</td>
+        <td style="font-size:12px">${r.email}</td>
+        <td>${reasonMap[r.reason]||r.reason}</td>
+        <td><span class="badge ${statusBadge}">${r.status}</span></td>
+        <td style="font-size:12px;color:#64748b">${(r.created_at||'').slice(0,10)}</td>
+        <td>${r.status==='pending'?`<button onclick="updateRefundStatus('${r.id}','approved')" style="padding:3px 8px;background:#dcfce7;color:#15803d;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600">Approve</button> <button onclick="updateRefundStatus('${r.id}','rejected')" style="padding:3px 8px;background:#fee2e2;color:#dc2626;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600">Reject</button>`:r.status==='approved'?`<button onclick="updateRefundStatus('${r.id}','processed')" style="padding:3px 8px;background:#dbeafe;color:#1d4ed8;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600">Mark Processed</button>`:'—'}</td>
+      </tr>`;
+    }).join('');
+  }catch(e){
+    document.getElementById('returnTable').innerHTML='<tr><td colspan="8" style="text-align:center;padding:20px;color:#dc2626">Failed to load refund requests</td></tr>';
+  }
+}
+async function filterReturns(status,el){
+  document.querySelectorAll('#returnTabs .filter-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  try{
+    const data=await RefundsAPI.getAll();
+    let refunds=data.refunds||[];
+    if(status!=='all')refunds=refunds.filter(r=>r.status===status);
+    document.getElementById('returnTable').innerHTML=refunds.map(r=>{
+      const reasonMap={defective:'Defective/Damaged',wrong:'Wrong Item',not_as_described:'Not as Described',changed_mind:'Changed Mind',late_delivery:'Late Delivery',other:'Other'};
+      const statusBadge=r.status==='pending'?'badge-yellow':r.status==='approved'?'badge-green':r.status==='rejected'?'badge-red':r.status==='processed'?'badge-blue':'badge-gray';
+      return `<tr><td><strong>${r.id}</strong></td><td>${r.order_id}</td><td>${r.customer_name||'—'}</td><td style="font-size:12px">${r.email}</td><td>${reasonMap[r.reason]||r.reason}</td><td><span class="badge ${statusBadge}">${r.status}</span></td><td style="font-size:12px;color:#64748b">${(r.created_at||'').slice(0,10)}</td><td>${r.status==='pending'?`<button onclick="updateRefundStatus('${r.id}','approved')" style="padding:3px 8px;background:#dcfce7;color:#15803d;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600">Approve</button> <button onclick="updateRefundStatus('${r.id}','rejected')" style="padding:3px 8px;background:#fee2e2;color:#dc2626;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600">Reject</button>`:r.status==='approved'?`<button onclick="updateRefundStatus('${r.id}','processed')" style="padding:3px 8px;background:#dbeafe;color:#1d4ed8;border:none;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600">Mark Processed</button>`:'—'}</td></tr>`;
+    }).join('');
+  }catch(e){}
+}
+async function updateRefundStatus(id,status){
+  try{
+    const res=await fetch(API+'/refunds/'+id+'/status',{method:'PATCH',headers:Auth.headers(),body:JSON.stringify({status})});
+    const data=await res.json();
+    if(data.error)return toast(data.error,'error');
+    toast(`${id} → ${status}`);
+    loadReturns();
+  }catch(e){toast('Failed to update','error');}
+}
 
 // ===== HELPERS =====
 function closeModal(id){document.getElementById(id).classList.remove('open')}
