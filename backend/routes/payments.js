@@ -1,6 +1,6 @@
 require('dotenv').config();
 const router = require('express').Router();
-const DB = require('../database');
+const { Order, Product, Customer } = require('../models');
 
 // Check if Stripe is configured
 function isStripeConfigured() {
@@ -94,19 +94,19 @@ router.post('/confirm', async (req, res) => {
     }
     // Demo mode — skip Stripe verification, order goes through directly
 
-    // Create order in database
-    const order = DB.createOrder({
-      customer_name,
-      customer_email,
-      shipping_address,
-      subtotal,
-      tax,
-      shipping_cost,
-      total,
-      payment_method: paymentMethod,
-      payment_intent_id: payment_intent_id || 'demo',
-      payment_status: paymentStatus,
-      items: items || [],
+    // Create order in MongoDB
+    const orderId = 'ORD-' + Date.now().toString(36).toUpperCase();
+    let customer = await Customer.findOne({ email: customer_email });
+    if (!customer) customer = await Customer.create({ name: customer_name, email: customer_email });
+    for (const item of items || []) {
+      await Product.findByIdAndUpdate(item.product_id, { $inc: { stock: -item.qty, sold: item.qty } });
+    }
+    const order = await Order.create({
+      id: orderId, customer_id: customer._id.toString(),
+      customer_name, customer_email, subtotal, tax,
+      shipping_cost: shipping_cost || 0, total, status: 'processing',
+      payment_method: paymentMethod, payment_status: paymentStatus,
+      shipping_address: shipping_address || '', items: items || []
     });
 
     res.json({

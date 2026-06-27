@@ -1,4 +1,6 @@
-const API = window.location.hostname==='localhost' ? 'http://localhost:3001/api' : '/api';
+const API = window.location.hostname === 'localhost'
+  ? 'http://localhost:5000/api'
+  : 'https://shopzone-6q91.onrender.com/api';
 // ShopZone API config - production ready
 const Auth = {
   getToken: () => localStorage.getItem('sz_token'),
