@@ -74,6 +74,18 @@ async function seedData() {
     console.log('✅ Orders seeded (6)');
   }
 
+  // Fix orders without createdAt (legacy data)
+  const ordersWithoutDate = await Order.countDocuments({ createdAt: { $exists: false } });
+  if (ordersWithoutDate > 0) {
+    console.log(`📅 Fixing ${ordersWithoutDate} orders without createdAt...`);
+    const staleOrders = await Order.find({ createdAt: { $exists: false } });
+    for (const o of staleOrders) {
+      o.createdAt = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000);
+      await o.save();
+    }
+    console.log(`✅ ${ordersWithoutDate} orders updated with createdAt`);
+  }
+
   console.log('\n🚀 Database ready on MongoDB Atlas!\n');
 }
 
