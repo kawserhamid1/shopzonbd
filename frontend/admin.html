@@ -728,10 +728,12 @@ document.addEventListener('click',e=>{
 });
 
 // ===== RETURNS & REFUNDS =====
+let currentReturnFilter = 'all';
 async function loadReturns(){
   try{
     const data=await RefundsAPI.getAll();
-    const refunds=data.refunds||[];
+    let refunds=data.refunds||[];
+    if(currentReturnFilter!=='all') refunds=refunds.filter(r=>r.status===currentReturnFilter);
     document.getElementById('returnTable').innerHTML=refunds.map(r=>{
       const reasonMap={defective:'Defective/Damaged',wrong:'Wrong Item',not_as_described:'Not as Described',changed_mind:'Changed Mind',late_delivery:'Late Delivery',other:'Other'};
       const statusBadge=r.status==='pending'?'badge-yellow':r.status==='approved'?'badge-green':r.status==='rejected'?'badge-red':r.status==='processed'?'badge-blue':'badge-gray';
@@ -753,6 +755,7 @@ async function loadReturns(){
 async function filterReturns(status,el){
   document.querySelectorAll('#returnTabs .filter-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
+  currentReturnFilter = status;
   try{
     const data=await RefundsAPI.getAll();
     let refunds=data.refunds||[];
