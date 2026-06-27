@@ -591,8 +591,31 @@ function saveShippingSettings(){
     return {name:names[i],active:cb.checked};
   }).filter(z=>z.active).map(z=>z.name);
   const settings={freeThreshold:threshold,standardCost:cost,expressCost:express,processTime,deliveryTime,expressTime,zones,returnPolicy};
-  localStorage.setItem('sz_shipping',JSON.stringify(settings));
-  toast('Shipping settings saved! ✅');
+  SettingsAPI.update(settings).then(r=>{
+    if(r.error) return toast(r.error,'error');
+    toast('Shipping & policy settings saved! ✅');
+  }).catch(()=>toast('Failed to save','error'));
+}
+
+function loadSettings(){
+  SettingsAPI.get().then(s=>{
+    if(s.freeThreshold) document.getElementById('shipFreeThreshold').value = s.freeThreshold;
+    if(s.standardCost) document.getElementById('shipCost').value = s.standardCost;
+    if(s.expressCost) document.getElementById('shipExpress').value = s.expressCost;
+    if(s.processTime) document.getElementById('shipProcessTime').value = s.processTime;
+    if(s.deliveryTime) document.getElementById('shipDeliveryTime').value = s.deliveryTime;
+    if(s.expressTime) document.getElementById('shipExpressTime').value = s.expressTime;
+    if(s.returnPolicy) document.getElementById('shipReturnPolicy').value = s.returnPolicy;
+    if(s.termsAndConditions) document.getElementById('termsEditor').value = s.termsAndConditions;
+    if(s.refundPolicy) document.getElementById('refundPolicyEditor').value = s.refundPolicy;
+    if(s.zones){
+      const allZones=['Bangladesh','India','USA','UK','Canada','Australia','Europe'];
+      const checkboxes=document.querySelectorAll('.settings-card:nth-child(2) input[type=checkbox]');
+      allZones.forEach((z,i)=>{
+        if(checkboxes[i]) checkboxes[i].checked = s.zones.includes(z);
+      });
+    }
+  }).catch(()=>{});
 }
 
 // ===== INVENTORY =====
