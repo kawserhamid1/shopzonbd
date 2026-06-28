@@ -1041,11 +1041,21 @@ async function showMyOrders(){
   try{
   // Fetch user orders AND refunds in parallel
   const [ordersRes, refundsRes] = await Promise.all([
-    fetch(API+'/users/orders',{headers:Auth.headers()}),
-    fetch(API+'/refunds/user',{headers:Auth.headers()})
+    fetch(API+'/users/orders',{headers:Auth.headers()}).catch(e=>{console.log('Orders fetch error:',e);return null}),
+    fetch(API+'/refunds/user',{headers:Auth.headers()}).catch(e=>{console.log('Refunds fetch error:',e);return null})
   ]);
+  
+  if(!ordersRes){
+    c.innerHTML=`<div style="text-align:center;padding:20px">
+      <h2 style="font-size:20px;font-weight:700;margin-bottom:8px">⚠️ Connection Error</h2>
+      <p style="color:#dc2626;font-size:14px;margin-bottom:12px">Could not reach server. Check your connection.</p>
+      <button class="place-order-btn" onclick="showMyOrders()">Retry</button>
+    </div>`;
+    return;
+  }
+  
   const orders = (await ordersRes.json()).orders||[];
-  const refunds = (await refundsRes.json()).refunds||[];
+  const refunds = refundsRes ? ((await refundsRes.json())?.refunds||[]) : [];
     
   if(!orders.length && !refunds.length){
     c.innerHTML=`
@@ -1097,9 +1107,17 @@ async function showMyOrders(){
   html += '</div>';
   c.innerHTML = html;
   }catch(e){
-  console.error('My Orders error:', e);
-  c.innerHTML=`<div style="text-align:center;padding:20px"><p style="color:#dc2626">Failed to load orders. Please login again.</p>
-    <button class="place-order-btn" onclick="closeAuthModal();openAuthModal('login')">Login</button></div>`;
+    console.error('My Orders error:', e);
+    // If token is invalid, clear it and show login
+    Auth.clear();
+    localStorage.removeItem('sz_user');
+    updateAuthBtn();
+    c.innerHTML=`<div style="text-align:center;padding:20px">
+      <h2 style="font-size:20px;font-weight:700;margin-bottom:8px">🔒 Session Expired</h2>
+      <p style="color:#64748b;font-size:14px;margin-bottom:12px">Your session expired. Please login again to view your orders.</p>
+      <button class="place-order-btn" onclick="closeAuthModal();openAuthModal('login')">Login</button>
+    </div>`;
+  }
   }
 }
 
