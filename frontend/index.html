@@ -877,6 +877,11 @@ async function doLogin(){
     closeAuthModal();
     updateAuthBtn();
     showToast('Welcome back, '+data.user.name+'! 🎉');
+    // If user was trying to see orders, auto-show them
+    if(window._pendingMyOrders){
+      window._pendingMyOrders=false;
+      setTimeout(()=>showMyOrders(),300);
+    }
   }catch(e){showAuthError('Login failed. Try again.');}
   btn.disabled=false;btn.textContent='Login';
 }
@@ -1030,7 +1035,8 @@ function showProfileMsg(msg,type){
 
 // ===== MY ORDERS (real DB data) =====
 async function showMyOrders(){
-  if(!isLoggedIn())return openAuthModal();
+  if(!isLoggedIn()){window._pendingMyOrders=true;return openAuthModal();}
+  window._pendingMyOrders=false;
   const c=document.getElementById('authModalContent');
   c.innerHTML=`
     <div style="text-align:center;margin-bottom:16px">
@@ -1052,9 +1058,10 @@ async function showMyOrders(){
     localStorage.removeItem('sz_user');
     updateAuthBtn();
     c.innerHTML=`<div style="text-align:center;padding:20px">
-      <h2 style="font-size:20px;font-weight:700;margin-bottom:8px">🔒 Session Expired</h2>
-      <p style="color:#64748b;font-size:14px;margin-bottom:12px">Please login again to view your orders.</p>
-      <button class="place-order-btn" onclick="closeAuthModal();openAuthModal('login')">Login</button>
+      <div style="font-size:48px;margin-bottom:12px">🔒</div>
+      <h2 style="font-size:20px;font-weight:700;margin-bottom:8px">Please Login</h2>
+      <p style="color:#64748b;font-size:14px;margin-bottom:12px">Login to view your orders</p>
+      <button class="place-order-btn" onclick="closeAuthModal();openAuthModal('login')">Login / Register</button>
     </div>`;
     return;
   }
