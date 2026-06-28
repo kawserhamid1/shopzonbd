@@ -339,7 +339,11 @@ async function loadProducts(f={}){
       </div>
     </div>`).join('');
   try{
-    const data=await ProductsAPI.getAll(f);
+    // Add timeout to handle cold start
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000); // 30s timeout
+    const data = await ProductsAPI.getAll(f);
+    clearTimeout(timeout);
     const products=data.products||[];
     if(!products.length){
       grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:#64748b">
@@ -354,12 +358,25 @@ async function loadProducts(f={}){
     document.getElementById('prodCount').textContent=`(${products.length} items)`;
     renderProducts(products);
   }catch(err){
+    console.error('loadProducts error:', err);
+    // Show retry with countdown
+    let retrySec=5;
     grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:#64748b">
-      <div style="font-size:48px;margin-bottom:16px">⚠️</div>
-      <h3 style="font-size:18px;font-weight:600;margin-bottom:8px;color:#374151">Could not load products</h3>
-      <p style="font-size:14px;margin-bottom:20px">Please check your connection and try again</p>
-      <button onclick="loadProducts()" style="padding:10px 24px;background:#4f46e5;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600">🔄 Try Again</button>
+      <div style="font-size:48px;margin-bottom:16px">🔄</div>
+      <h3 style="font-size:18px;font-weight:600;margin-bottom:8px;color:#374151">Server is waking up...</h3>
+      <p style="font-size:14px;margin-bottom:20px">Free server may take a moment to start. Retrying in <span id="retryCount">${retrySec}</span>s</p>
+      <button onclick="loadProducts()" style="padding:10px 24px;background:#4f46e5;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600">Try Now</button>
     </div>`;
+    // Auto-retry after 5 seconds
+    const interval=setInterval(()=>{
+      retrySec--;
+      const el=document.getElementById('retryCount');
+      if(el)el.textContent=retrySec;
+      if(retrySec<=0){
+        clearInterval(interval);
+        loadProducts(f);
+      }
+    },1000);
   }
 }
 function renderProducts(products){
