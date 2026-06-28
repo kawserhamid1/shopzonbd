@@ -1046,6 +1046,19 @@ async function showMyOrders(){
     fetch(API+'/refunds/user',{headers:Auth.headers()}).catch(e=>{console.log('Refunds fetch error:',e);return null})
   ]);
   
+  // Check for auth failure (401/403)
+  if(ordersRes && ordersRes.status === 401){
+    Auth.clear();
+    localStorage.removeItem('sz_user');
+    updateAuthBtn();
+    c.innerHTML=`<div style="text-align:center;padding:20px">
+      <h2 style="font-size:20px;font-weight:700;margin-bottom:8px">🔒 Session Expired</h2>
+      <p style="color:#64748b;font-size:14px;margin-bottom:12px">Please login again to view your orders.</p>
+      <button class="place-order-btn" onclick="closeAuthModal();openAuthModal('login')">Login</button>
+    </div>`;
+    return;
+  }
+  
   if(!ordersRes){
     c.innerHTML=`<div style="text-align:center;padding:20px">
       <h2 style="font-size:20px;font-weight:700;margin-bottom:8px">⚠️ Connection Error</h2>
