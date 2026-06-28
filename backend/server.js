@@ -23,6 +23,7 @@ app.use('/api/users',     require('./routes/users'));
 app.use('/api/payments',  require('./routes/payments'));
 app.use('/api/refunds',   require('./routes/refunds'));
 app.use('/api/settings',  require('./routes/settings'));
+app.use('/api/reset',    require('./routes/reset'));
 
 app.get('/api/health', (req, res) =>
   res.json({ status: 'ok', message: '🚀 ShopZone running!', time: new Date() })
