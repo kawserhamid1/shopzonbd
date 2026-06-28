@@ -26,6 +26,7 @@ router.post('/', async (req, res) => {
     if (!items?.length) return res.status(400).json({ error: 'No items.' });
     const orderId = 'ORD-' + Date.now().toString(36).toUpperCase();
     const total = subtotal + tax + (shipping_cost || 0);
+    const orderDate = new Date();
     let customer = await Customer.findOne({ email: customer_email });
     if (!customer) customer = await Customer.create({ name: customer_name, email: customer_email });
     for (const item of items) {
@@ -35,6 +36,7 @@ router.post('/', async (req, res) => {
       id: orderId, customer_id: customer._id.toString(),
       customer_name, customer_email, subtotal, tax,
       shipping_cost: shipping_cost || 0, total, status: 'pending',
+      createdAt: orderDate,
       payment_method: payment_method || 'Credit Card',
       shipping_method: shipping_method || 'standard',
       shipping_address: shipping_address || '',
