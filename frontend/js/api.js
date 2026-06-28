@@ -1,7 +1,6 @@
 const API = window.location.hostname === 'localhost'
   ? 'http://localhost:5000/api'
-  : 'https://shopzone-6q91.onrender.com/api';
-// ShopZone API config - production ready
+  : '/api';
 const Auth = {
   getToken: () => localStorage.getItem('sz_token'),
   setToken: t  => localStorage.setItem('sz_token', t),
@@ -9,7 +8,7 @@ const Auth = {
   headers:  ()  => ({ 'Content-Type':'application/json', 'Authorization':'Bearer '+Auth.getToken() })
 };
 const ProductsAPI = {
-  getAll: p => fetch(API+'/products?'+new URLSearchParams(p||{}), {signal: p?.signal}).then(r=>r.json()),
+  getAll: p => fetch(API+'/products?'+new URLSearchParams(p||{})).then(r=>r.json()),
   getOne: id => fetch(API+'/products/'+id).then(r=>r.json()),
   update: (id,d) => fetch(API+'/products/'+id,{method:'PATCH',headers:Auth.headers(),body:JSON.stringify(d)}).then(r=>r.json()),
   restock:(id,q) => fetch(API+'/products/'+id+'/restock',{method:'PATCH',headers:Auth.headers(),body:JSON.stringify({quantity:q})}).then(r=>r.json())
