@@ -647,11 +647,11 @@ function showOrders(){
 }
 function closeOrders(){document.getElementById('ordersModal').classList.remove('open')}
 
-function openRefundForm(){
+function openRefundForm(orderId){
   document.getElementById('ordersContent').innerHTML=`
     <h2 style="padding:16px 20px;font-size:18px;font-weight:700;border-bottom:1px solid #f1f5f9">🔄 Request a Refund</h2>
     <div style="padding:20px;font-size:14px">
-      <div class="form-group"><label>Order ID *</label><input type="text" id="refundOrderId" placeholder="ORD-XXX"></div>
+      <div class="form-group"><label>Order ID *</label><input type="text" id="refundOrderId" value="${orderId||''}" placeholder="ORD-XXX"${orderId?' readonly':''}></div>
       <div class="form-group"><label>Your Email *</label><input type="email" id="refundEmail" placeholder="you@example.com"></div>
       <div class="form-group"><label>Reason for Refund *</label>
         <select id="refundReason" style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px">
@@ -667,10 +667,11 @@ function openRefundForm(){
       <div class="form-group"><label>Additional Details</label><textarea id="refundDetails" rows="3" placeholder="Tell us more..." style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px"></textarea></div>
       <div style="display:flex;gap:10px;margin-top:10px">
         <button onclick="submitRefund()" style="flex:1;padding:12px;background:#dc2626;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">Submit Refund Request</button>
-        <button onclick="closeOrders()" style="padding:12px 20px;background:#f1f5f9;color:#475569;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">Cancel</button>
+        <button onclick="showMyOrders()" style="padding:12px 20px;background:#f1f5f9;color:#475569;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">Cancel</button>
       </div>
     </div>`;
-  document.getElementById('ordersModal').classList.add('open');
+}
+function closeOrders(){document.getElementById('ordersModal').classList.remove('open')}
 }
 
 // ===== SHIPPING INFO =====
@@ -761,13 +762,30 @@ async function trackOrder(){
   if(!id)return showToast('Enter order ID','error');
   const o=await OrdersAPI.getOne(id);
   if(!o||o.error){document.getElementById('trackResult').innerHTML='<p style="color:#dc2626;font-size:14px">Order not found</p>';return}
+  
+  // Also fetch refund status for this order
+  let refundInfo = '';
+  try{
+    const refRes = await fetch(API+'/refunds/order/'+o.id);
+    const refData = await refRes.json();
+    if(refData.refund){
+      const r = refData.refund;
+      const refStatus = r.status === 'approved' ? '✅ Refund Approved' :
+                       r.status === 'rejected' ? '❌ Refund Rejected' :
+                       r.status === 'processed' ? '💰 Refund Processed' : '⏳ Refund Pending';
+      refundInfo = `<div style="margin-top:8px;padding:8px;background:${r.status==='approved'?'#dcfce7':r.status==='rejected'?'#fee2e2':'#fef9c3'};border-radius:6px;font-size:12px;font-weight:600">${refStatus}</div>`;
+    }
+  }catch(e){}
+  
   document.getElementById('trackResult').innerHTML=`
     <div style="background:#f8fafc;border-radius:10px;padding:14px;font-size:13px">
       <div style="font-weight:700;margin-bottom:8px">${o.id}</div>
       <div>Customer: ${o.customer_name}</div>
+      <div>Email: ${o.customer_email}</div>
       <div>Total: <strong>${fmt(o.total)}</strong></div>
-      <div>Date: ${o.created_at}</div>
+      <div>Date: ${o.createdAt?new Date(o.createdAt).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})+' '+new Date(o.createdAt).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}):'—'}</div>
       <div style="margin-top:6px">${statusBadge(o.status)}</div>
+      ${refundInfo}
     </div>`;
 }
 
@@ -1006,40 +1024,67 @@ async function showMyOrders(){
     <div style="text-align:center;padding:20px"><div style="width:28px;height:28px;border:3px solid #e2e8f0;border-top-color:#4f46e5;border-radius:50%;animation:spin .6s linear infinite;margin:0 auto"></div></div>`;
   document.getElementById('authModal').classList.add('open');
   try{
-    const res=await fetch(API+'/users/orders',{headers:Auth.headers()});
-    const data=await res.json();
-    const orders=data.orders||[];
-    if(!orders.length){
-      c.innerHTML=`
-        <div style="text-align:center;padding:20px">
-          <div style="font-size:48px;margin-bottom:8px">📦</div>
-          <h2 style="font-size:20px;font-weight:700">My Orders</h2>
-          <p style="font-size:14px;color:#64748b;margin:12px 0">No orders yet. Start shopping!</p>
-          <button class="place-order-btn" onclick="closeAuthModal()">Browse Products</button>
-        </div>`;
-      return;
-    }
+  // Fetch user orders AND refunds in parallel
+  const [ordersRes, refundsRes] = await Promise.all([
+    fetch(API+'/users/orders',{headers:Auth.headers()}),
+    fetch(API+'/refunds/user',{headers:Auth.headers()})
+  ]);
+  const orders = (await ordersRes.json()).orders||[];
+  const refunds = (await refundsRes.json()).refunds||[];
+    
+  if(!orders.length && !refunds.length){
     c.innerHTML=`
-      <div style="margin-bottom:12px">
-        <h2 style="font-size:20px;font-weight:700">📦 My Orders</h2>
-        <p style="font-size:13px;color:#64748b">${orders.length} order${orders.length>1?'s':''}</p>
-      </div>
-      <div style="max-height:400px;overflow-y:auto">
-        ${orders.map(o=>`
-          <div style="border:1px solid #f1f5f9;border-radius:10px;padding:14px;margin-bottom:10px">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-              <span style="font-weight:700;font-size:14px">${o.id}</span>
-              ${statusBadge(o.status)}
-            </div>
-            <div style="font-size:13px;color:#64748b">${o.created_at}</div>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
-              <span style="font-size:12px;color:#94a3b8">${o.items?.length||0} item${(o.items?.length||0)!==1?'s':''} • ${o.payment_method||'N/A'}</span>
+      <div style="text-align:center;padding:20px">
+        <div style="font-size:48px;margin-bottom:8px">📦</div>
+        <h2 style="font-size:20px;font-weight:700">My Orders</h2>
+        <p style="font-size:14px;color:#64748b;margin:12px 0">No orders yet. Start shopping!</p>
+        <button class="place-order-btn" onclick="closeAuthModal()">Browse Products</button>
+      </div>`;
+    return;
+  }
+    
+  let html = `
+    <div style="margin-bottom:12px">
+      <h2 style="font-size:20px;font-weight:700">📦 My Orders</h2>
+      <p style="font-size:13px;color:#64748b">${orders.length} order${orders.length>1?'s':''}</p>
+    </div>
+    <div style="max-height:400px;overflow-y:auto">`;
+    
+  for(const o of orders){
+    // Check if this order has a refund
+    const orderRefund = refunds.find(r => r.order_id === o.id);
+    let refundBadge = '';
+    if(orderRefund){
+      const refStatus = orderRefund.status === 'approved' ? '<span style="color:#15803d;font-size:12px;font-weight:600">✅ Refund Approved</span>' :
+                       orderRefund.status === 'rejected' ? '<span style="color:#dc2626;font-size:12px;font-weight:600">❌ Refund Rejected</span>' :
+                       '<span style="color:#a16207;font-size:12px;font-weight:600">⏳ Refund Pending</span>';
+      refundBadge = `<div style="margin-top:4px">${refStatus}</div>`;
+    }
+      
+    html += `
+        <div style="border:1px solid #f1f5f9;border-radius:10px;padding:14px;margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span style="font-weight:700;font-size:14px">${o.id}</span>
+            ${statusBadge(o.status)}
+          </div>
+          <div style="font-size:13px;color:#64748b">${o.createdAt?new Date(o.createdAt).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'})+' '+new Date(o.createdAt).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}):'—'}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+            <span style="font-size:12px;color:#94a3b8">${o.items?.length||0} item${(o.items?.length||0)!==1?'s':''} • ${o.payment_method||'N/A'}</span>
+            <div style="display:flex;align-items:center;gap:8px">
+              ${!orderRefund && o.status === 'delivered' ? `<button onclick="openRefundForm('${o.id}')" style="padding:4px 12px;background:#fef3c7;color:#92400e;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Request Refund</button>` : ''}
               <span style="font-weight:700;color:#4f46e5">${fmt(o.total)}</span>
             </div>
-          </div>`).join('')}
-      </div>`;
+          </div>
+          ${refundBadge}
+        </div>`;
+  }
+    
+  html += '</div>';
+  c.innerHTML = html;
   }catch(e){
-    c.innerHTML=`<div style="text-align:center;padding:20px"><p style="color:#dc2626">Failed to load orders.</p></div>`;
+  console.error('My Orders error:', e);
+  c.innerHTML=`<div style="text-align:center;padding:20px"><p style="color:#dc2626">Failed to load orders. Please login again.</p>
+    <button class="place-order-btn" onclick="closeAuthModal();openAuthModal('login')">Login</button></div>`;
   }
 }
 

@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const { readRefunds, writeRefunds } = require('../store/refunds');
 const adminAuth = require('../middleware/adminAuth');
+const { requireUser } = require('../middleware/userAuth');
 
 // POST — Submit a refund request (public)
 router.post('/', async (req, res) => {
@@ -25,6 +26,29 @@ router.post('/', async (req, res) => {
     writeRefunds(refunds);
 
     res.status(201).json({ message: 'Refund request submitted!', refund_id: newRefund.id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET — Logged-in user's refunds
+router.get('/user', requireUser, async (req, res) => {
+  try {
+    const refunds = readRefunds();
+    const myRefunds = refunds.filter(r => r.email === req.user.email);
+    res.json({ refunds: myRefunds, total: myRefunds.length });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET — Get refund by order ID (public - for order tracking)
+router.get('/order/:orderId', async (req, res) => {
+  try {
+    const refunds = readRefunds();
+    const refund = refunds.find(r => r.order_id === req.params.orderId);
+    if (!refund) return res.json({ refund: null });
+    res.json({ refund });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
