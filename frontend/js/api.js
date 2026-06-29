@@ -10,7 +10,10 @@ const Auth = {
 const ProductsAPI = {
   getAll: p => fetch(API+'/products?'+new URLSearchParams(p||{})).then(r=>r.json()),
   getOne: id => fetch(API+'/products/'+id).then(r=>r.json()),
+  create: d => fetch(API+'/products',{method:'POST',headers:Auth.headers(),body:JSON.stringify(d)}).then(r=>r.json()),
   update: (id,d) => fetch(API+'/products/'+id,{method:'PATCH',headers:Auth.headers(),body:JSON.stringify(d)}).then(r=>r.json()),
+  delete: id => fetch(API+'/products/'+id,{method:'DELETE',headers:Auth.headers()}).then(r=>r.json()),
+  bulkDelete: ids => fetch(API+'/products/bulk-delete',{method:'POST',headers:Auth.headers(),body:JSON.stringify({ids})}).then(r=>r.json()),
   restock:(id,q) => fetch(API+'/products/'+id+'/restock',{method:'PATCH',headers:Auth.headers(),body:JSON.stringify({quantity:q})}).then(r=>r.json())
 };
 const OrdersAPI = {

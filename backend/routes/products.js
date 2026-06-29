@@ -42,4 +42,39 @@ router.patch('/:id/restock', adminAuth, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// POST — Create new product
+router.post('/', adminAuth, async (req, res) => {
+  try {
+    const { name, brand, category, price, original_price, cost, stock, description, badge, image, sku, tags } = req.body;
+    if (!name || !price) return res.status(400).json({ error: 'Name and price required.' });
+    const product = await Product.create({
+      name, brand: brand || '', category: category || 'Uncategorized',
+      price: +price, original_price: +original_price || +price, cost: +cost || 0,
+      stock: +stock || 0, description: description || '', badge: badge || '',
+      image: image || '�', sku: sku || 'SKU-' + Date.now().toString(36).toUpperCase(),
+      tags: tags || [], status: 'active', sold: 0, rating: 4.5, reviews: 0
+    });
+    res.status(201).json({ message: 'Product created!', product });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// DELETE — Delete product
+router.delete('/:id', adminAuth, async (req, res) => {
+  try {
+    const p = await Product.findByIdAndDelete(req.params.id);
+    if (!p) return res.status(404).json({ error: 'Not found.' });
+    res.json({ message: 'Product deleted.', id: req.params.id });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// DELETE — Bulk delete
+router.post('/bulk-delete', adminAuth, async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!ids || !ids.length) return res.status(400).json({ error: 'No IDs provided.' });
+    const result = await Product.deleteMany({ _id: { $in: ids } });
+    res.json({ message: `${result.deletedCount} products deleted.` });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 module.exports = router;

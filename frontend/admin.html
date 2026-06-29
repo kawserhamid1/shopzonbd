@@ -244,7 +244,17 @@ tr:hover td{background:#f8fafc}
 
       <!-- PRODUCTS -->
       <div class="page" id="page-products">
-        <div class="card"><div class="card-header"><h3>📦 All Products</h3><input class="search-input" placeholder="Search products..." oninput="filterProducts(this.value)"></div><div class="card-body"><div class="table-wrap"><table><thead><tr><th>ID</th><th>Product</th><th>Brand</th><th>Category</th><th>Price</th><th>Stock</th><th>Sold</th><th>Actions</th></tr></thead><tbody id="prodTable"></tbody></table></div></div></div>
+        <div class="card">
+          <div class="card-header">
+            <h3>📦 All Products</h3>
+            <div style="display:flex;gap:8px">
+              <input class="search-input" placeholder="Search products..." oninput="filterProducts(this.value)">
+              <button class="btn btn-danger btn-sm" id="bulkDeleteBtn" style="display:none" onclick="bulkDeleteProducts()">🗑️ Delete Selected</button>
+              <button class="btn btn-primary btn-sm" onclick="openAddProductModal()">+ Add Product</button>
+            </div>
+          </div>
+          <div class="card-body"><div class="table-wrap"><table><thead><tr><th><input type="checkbox" id="selectAllProducts" onchange="toggleSelectAll()" title="Select all"></th><th>Image</th><th>Product</th><th>Brand</th><th>Category</th><th>Price</th><th>Stock</th><th>Sold</th><th>Actions</th></tr></thead><tbody id="prodTable"></tbody></table></div></div>
+        </div>
       </div>
 
       <!-- ORDERS -->
@@ -358,6 +368,49 @@ tr:hover td{background:#f8fafc}
   <div class="modal">
     <div class="modal-header"><h3>✏️ Edit Product</h3><button class="modal-close" onclick="closeModal('editModal')">✕</button></div>
     <div class="modal-body" id="editModalBody"></div>
+  </div>
+</div>
+
+<!-- ADD PRODUCT MODAL -->
+<div class="modal-overlay" id="addProductModal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header"><h3>➕ Add New Product</h3><button class="modal-close" onclick="closeModal('addProductModal')">✕</button></div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label>Product Name *</label><input id="apName" placeholder="e.g. iPhone 15 Pro"></div>
+        <div class="form-group"><label>Brand</label><input id="apBrand" placeholder="e.g. Apple"></div>
+        <div class="form-group"><label>Category</label>
+          <select id="apCategory" style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px">
+            <option value="Electronics">Electronics</option>
+            <option value="Fashion">Fashion</option>
+            <option value="Home & Kitchen">Home & Kitchen</option>
+            <option value="Toys & Games">Toys & Games</option>
+            <option value="Uncategorized">Uncategorized</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Badge</label>
+          <select id="apBadge" style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px">
+            <option value="">None</option>
+            <option value="Best Seller">Best Seller</option>
+            <option value="New">New</option>
+            <option value="Sale">Sale</option>
+            <option value="Hot">Hot</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Price * ($)</label><input id="apPrice" type="number" step="0.01" placeholder="99.99"></div>
+        <div class="form-group"><label>Original Price ($)</label><input id="apOrigPrice" type="number" step="0.01" placeholder="129.99"></div>
+        <div class="form-group"><label>Cost ($)</label><input id="apCost" type="number" step="0.01" placeholder="50.00"></div>
+        <div class="form-group"><label>Stock Qty</label><input id="apStock" type="number" placeholder="100"></div>
+        <div class="form-group"><label>Image Emoji</label><input id="apImage" placeholder="📱"></div>
+        <div class="form-group"><label>SKU</label><input id="apSku" placeholder="auto-generate"></div>
+      </div>
+      <div class="form-group" style="margin-top:12px"><label>Description</label><textarea id="apDesc" rows="2" placeholder="Short product description..." style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit"></textarea></div>
+      <div class="form-group"><label>Tags (comma separated)</label><input id="apTags" placeholder="tag1, tag2"></div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px">
+        <button class="btn btn-sm" style="background:#f1f5f9;width:auto" onclick="closeModal('addProductModal')">Cancel</button>
+        <button class="btn btn-success btn-sm" onclick="submitNewProduct()">✅ Add Product</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -476,12 +529,81 @@ function loadProducts(){
   });
 }
 function renderProducts(prods){
-  document.getElementById('prodTable').innerHTML=prods.map(p=>`<tr><td>${p._id}</td><td><strong>${p.name}</strong></td><td>${p.brand}</td><td>${p.category}</td><td>$${p.price.toFixed(2)}</td><td style="color:${p.stock<=8?'#dc2626':'inherit'};font-weight:${p.stock<=8?'700':'400'}">${p.stock}</td><td>${p.sold}</td><td><button class="btn btn-primary btn-xs" onclick="editProd('${p._id}')">Edit</button> <button class="btn btn-warning btn-xs" onclick="openRestock('${p._id}')">Restock</button></td></tr>`).join('');
+  document.getElementById('prodTable').innerHTML=prods.map(p=>`<tr><td><input type="checkbox" class="prod-check" value="${p._id}" onchange="updateSelected()"></td><td>${p.image||'📦'}</td><td><strong>${p.name}</strong></td><td>${p.brand}</td><td>${p.category}</td><td>$${p.price.toFixed(2)}</td><td style="color:${p.stock<=8?'#dc2626':'inherit'};font-weight:${p.stock<=8?'700':'400'}">${p.stock}</td><td>${p.sold}</td><td><button class="btn btn-primary btn-xs" onclick="editProd('${p._id}')">�️</button> <button class="btn btn-warning btn-xs" onclick="openRestock('${p._id}')">�</button> <button class="btn btn-danger btn-xs" onclick="deleteProd('${p._id}')">🗑️</button></td></tr>`).join('');
 }
 function filterProducts(q){
   const f=allProducts.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())||p.brand.toLowerCase().includes(q.toLowerCase()));
   renderProducts(f);
 }
+
+// ===== ADD NEW PRODUCT =====
+async function submitNewProduct(){
+  const name=document.getElementById('apName').value.trim();
+  const price=+document.getElementById('apPrice').value;
+  if(!name||!price)return toast('Name & Price required!','error');
+  const tags=document.getElementById('apTags').value.split(',').map(t=>t.trim()).filter(t=>t);
+  const newProd={
+    name, brand:document.getElementById('apBrand').value.trim(),
+    category:document.getElementById('apCategory').value,
+    price, original_price:+document.getElementById('apOrigPrice').value||price,
+    cost:+document.getElementById('apCost').value||0,
+    stock:+document.getElementById('apStock').value||0,
+    badge:document.getElementById('apBadge').value,
+    image:document.getElementById('apImage').value.trim()||'�',
+    sku:document.getElementById('apSku').value.trim()||'SKU-'+Date.now().toString(36).toUpperCase(),
+    description:document.getElementById('apDesc').value.trim(),
+    tags
+  };
+  try{
+    const res=await fetch(API+'/products',{method:'POST',headers:Auth.headers(),body:JSON.stringify(newProd)});
+    const data=await res.json();
+    if(data.error)return toast(data.error,'error');
+    toast('Product added! ✅');
+    closeModal('addProductModal');
+    loadProducts();
+    loadDashboard();
+  }catch(e){toast('Failed to add product','error');}
+}
+
+// ===== DELETE PRODUCT =====
+async function deleteProd(id){
+  if(!confirm('Delete this product? This cannot be undone.'))return;
+  try{
+    const res=await fetch(API+'/products/'+id,{method:'DELETE',headers:Auth.headers()});
+    const data=await res.json();
+    if(data.error)return toast(data.error,'error');
+    toast('Product deleted! �️');
+    loadProducts();
+    loadDashboard();
+  }catch(e){toast('Failed to delete','error');}
+}
+
+// ===== BULK ACTIONS =====
+let selectedProducts=[];
+function toggleSelectAll(){
+  const checked=document.getElementById('selectAllProducts').checked;
+  document.querySelectorAll('.prod-check').forEach(cb=>cb.checked=checked);
+  updateSelected();
+}
+function updateSelected(){
+  selectedProducts=Array.from(document.querySelectorAll('.prod-check:checked')).map(cb=>cb.value);
+  const btn=document.getElementById('bulkDeleteBtn');
+  btn.style.display=selectedProducts.length>0?'inline-block':'none';
+  btn.textContent=`🗑️ Delete Selected (${selectedProducts.length})`;
+}
+async function bulkDeleteProducts(){
+  if(!confirm(`Delete ${selectedProducts.length} products? This cannot be undone.`))return;
+  try{
+    const res=await fetch(API+'/products/bulk-delete',{method:'POST',headers:Auth.headers(),body:JSON.stringify({ids:selectedProducts})});
+    const data=await res.json();
+    if(data.error)return toast(data.error,'error');
+    toast(data.message||'Products deleted!');
+    selectedProducts=[];
+    loadProducts();
+    loadDashboard();
+  }catch(e){toast('Failed to delete','error');}
+}
+
 function editProd(id){
   const p=allProducts.find(x=>x._id==id);
   if(!p)return;
