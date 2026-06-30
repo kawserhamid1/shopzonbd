@@ -591,7 +591,7 @@ function openAddCategoryModal(){
 async function submitNewCategory(){
   const name=document.getElementById('catName').value.trim();
   if(!name)return toast('Category name required!','error');
-  const d={name,emoji=document.getElementById('catEmoji').value.trim()||'�',color:document.getElementById('catColor').value||'#4f46e5'};
+  const d={name,emoji:document.getElementById('catEmoji').value.trim()||'�',color:document.getElementById('catColor').value||'#4f46e5'};
   try{
     const data=await CategoriesAPI.create(d);
     if(data.error)return toast(data.error,'error');
