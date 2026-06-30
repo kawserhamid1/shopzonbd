@@ -451,6 +451,14 @@ tr:hover td{background:#f8fafc}
   </div>
 </div>
 
+<!-- ORDER DETAIL MODAL -->
+<div class="modal-overlay" id="orderDetailModal">
+  <div class="modal" style="max-width:650px">
+    <div class="modal-header"><h3>📦 Order Details</h3><button class="modal-close" onclick="closeModal('orderDetailModal')">✕</button></div>
+    <div class="modal-body" id="orderDetailContent"></div>
+  </div>
+</div>
+
 <script src="js/utils.js"></script>
 <script src="js/api.js"></script>
 <script>
@@ -768,29 +776,73 @@ function loadOrders(){
 }
 function renderOrders(orders){
   document.getElementById('orderTable').innerHTML=orders.map(o=>{
-    // Payment method display
     const payDisplay = o.payment_method
       ? `<span class="badge badge-${o.payment_method==='Credit Card'?'green':o.payment_method==='PayPal'?'blue':'yellow'}">${o.payment_method}</span>`
       : '<span class="badge badge-gray">N/A</span>';
-    // Address display
     const addr = o.shipping_address || '—';
-    // Ensure email is actually an email, not an address
     const email = (o.customer_email && o.customer_email.includes('@')) ? o.customer_email : '—';
-    // Action buttons based on status
     let actionBtns='';
     if(o.status==='pending'){
-      actionBtns=`<button class="btn btn-primary btn-xs" onclick="setStatus('${o.id}','processing')">▶ Process</button>`;
+      actionBtns=`<button class="btn btn-primary btn-xs" onclick="event.stopPropagation();setStatus('${o.id}','processing')">▶ Process</button>`;
     } else if(o.status==='processing'){
-      actionBtns=`<button class="btn btn-primary btn-xs" onclick="setStatus('${o.id}','shipped')">📦 Ship</button>`;
+      actionBtns=`<button class="btn btn-primary btn-xs" onclick="event.stopPropagation();setStatus('${o.id}','shipped')">📦 Ship</button>`;
     } else if(o.status==='shipped'){
-      actionBtns=`<button class="btn btn-success btn-xs" onclick="setStatus('${o.id}','delivered')">✅ Deliver</button>`;
+      actionBtns=`<button class="btn btn-success btn-xs" onclick="event.stopPropagation();setStatus('${o.id}','delivered')">✅ Deliver</button>`;
     } else if(o.status==='delivered'){
       actionBtns=`<span style="color:#94a3b8;font-size:12px">✓ Done</span>`;
     } else if(o.status==='cancelled'){
       actionBtns=`<span style="color:#dc2626;font-size:12px">Cancelled</span>`;
     }
-    return `<tr><td><strong>${o.id}</strong></td><td>${o.customer_name||'—'}</td><td>${email}</td><td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${addr}">${addr}</td><td>$${(o.total||0).toFixed(2)}</td><td>${payDisplay}</td><td>${statusBadge(o.status)}</td><td style="font-size:12px;color:${o.createdAt?'#64748b':'#dc2626'}">${o.createdAt?new Date(o.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})+' '+new Date(o.createdAt).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}):'⚠️ No date'}</td><td>${actionBtns}</td></tr>`;
+    return `<tr style="cursor:pointer" onclick="showOrderDetails('${o.id}')"><td><strong>${o.id}</strong></td><td>${o.customer_name||'—'}</td><td>${email}</td><td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${addr}">${addr}</td><td>$${(o.total||0).toFixed(2)}</td><td>${payDisplay}</td><td>${statusBadge(o.status)}</td><td style="font-size:12px;color:${o.createdAt?'#64748b':'#dc2626'}">${o.createdAt?new Date(o.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})+' '+new Date(o.createdAt).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}):'⚠️ No date'}</td><td>${actionBtns}</td></tr>`;
   }).join('');
+}
+
+// ===== ORDER DETAILS POPUP =====
+function showOrderDetails(id){
+  const o=allOrders.find(x=>x.id===id);
+  if(!o)return toast('Order not found','error');
+  const items=o.items||[];
+  let itemsHtml='';
+  if(items.length>0){
+    itemsHtml=`<table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr style="background:#f8fafc"><td style="padding:8px;font-weight:600">Product</td><td style="padding:8px;font-weight:600">Price</td><td style="padding:8px;font-weight:600">Qty</td><td style="padding:8px;font-weight:600;text-align:right">Subtotal</td></tr></thead>
+      <tbody>${items.map(i=>{
+        const img=(i.image||'📦');
+        const imgHtml=(img.startsWith('http'))?`<img src="${img}" style="width:28px;height:28px;border-radius:4px;object-fit:cover;vertical-align:middle;margin-right:6px">`:`<span style="font-size:20px;vertical-align:middle;margin-right:6px">${img}</span>`;
+        return`<tr style="border-top:1px solid #f1f5f9"><td style="padding:8px">${imgHtml}${i.name||'—'}</td><td style="padding:8px">$${(i.price||0).toFixed(2)}</td><td style="padding:8px">${i.qty||1}</td><td style="padding:8px;font-weight:600;text-align:right">$${((i.price||0)*(i.qty||1)).toFixed(2)}</td></tr>`;
+      }).join('')}</tbody></table>`;
+  } else {
+    itemsHtml='<p style="text-align:center;padding:20px;color:#94a3b8">No items data</p>';
+  }
+  const modalContent=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <h3 style="font-size:18px;font-weight:700">📦 ${o.id}</h3>
+      <span class="badge ${o.status==='delivered'?'badge-green':o.status==='shipped'?'badge-blue':o.status==='processing'?'badge-yellow':o.status==='pending'?'badge-red':'badge-gray'}">${o.status}</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px;margin-bottom:16px;background:#f8fafc;padding:12px;border-radius:8px">
+      <div><strong>Customer:</strong> ${o.customer_name||'—'}</div>
+      <div><strong>Email:</strong> ${o.customer_email||'—'}</div>
+      <div><strong>Address:</strong> ${o.shipping_address||'—'}</div>
+      <div><strong>Payment:</strong> ${o.payment_method||'—'}</div>
+      <div><strong>Date:</strong> ${o.createdAt?new Date(o.createdAt).toLocaleString():'—'}</div>
+      <div><strong>Status:</strong> ${o.status}</div>
+    </div>
+    <h4 style="font-size:14px;font-weight:700;margin-bottom:8px">Items (${items.length})</h4>
+    <div style="max-height:200px;overflow-y:auto">${itemsHtml}</div>
+    <div style="margin-top:16px;padding-top:16px;border-top:2px solid #e2e8f0;display:flex;gap:12px;justify-content:flex-end;font-size:14px">
+      <div>Subtotal: <strong>$${o.subtotal?o.subtotal.toFixed(2):'0.00'}</strong></div>
+      <div>Tax: <strong>$${o.tax?o.tax.toFixed(2):'0.00'}</strong></div>
+      <div>Shipping: <strong>$${o.shipping_cost?o.shipping_cost.toFixed(2):'0.00'}</strong></div>
+      <div style="font-size:18px;color:#4f46e5">Total: <strong>$${o.total?o.total.toFixed(2):'0.00'}</strong></div>
+    </div>
+    <div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end">
+      ${o.status==='pending'?`<button class="btn btn-primary btn-sm" onclick="closeModal('orderDetailModal');setStatus('${o.id}','processing')">▶ Process</button>`:''}
+      ${o.status==='processing'?`<button class="btn btn-primary btn-sm" onclick="closeModal('orderDetailModal');setStatus('${o.id}','shipped')">📦 Ship</button>`:''}
+      ${o.status==='shipped'?`<button class="btn btn-success btn-sm" onclick="closeModal('orderDetailModal');setStatus('${o.id}','delivered')">✅ Deliver</button>`:''}
+      <button class="btn btn-sm" style="background:#f1f5f9" onclick="closeModal('orderDetailModal')">Close</button>
+    </div>`;
+  document.getElementById('orderDetailContent').innerHTML=modalContent;
+  document.getElementById('orderDetailModal').classList.add('open');
 }
 let currentOrderFilter='all';
 function filterOrders(status,el){
