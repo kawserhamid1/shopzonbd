@@ -24,3 +24,15 @@ const Wishlist = {
   has(id) { return this.get().some(i=>i.id===id); },
   toggle(p) { const w=this.get(),i=w.findIndex(x=>x.id===p.id); i>=0?(w.splice(i,1),showToast('Removed from wishlist','info')):(w.push(p),showToast('Added to wishlist ❤️')); localStorage.setItem('sz_wish',JSON.stringify(w)); const b=document.getElementById('wish-badge'); if(b){b.textContent=w.length;b.style.display=w.length>0?'flex':'none';} }
 };
+
+// Fallback: if api.js not loaded (cached old version), define CategoriesAPI
+if (typeof CategoriesAPI === 'undefined') {
+  // Use relative URL for production, works with Render
+  const _apiBase = window.location.hostname === 'localhost' ? 'http://localhost:5000/api' : '/api';
+  window.CategoriesAPI = {
+    getAll: () => fetch(_apiBase+'/categories').then(r=>r.json()),
+    create: (d) => fetch(_apiBase+'/categories',{headers:{'Authorization':'Bearer '+(localStorage.getItem('sz_token')||''),'Content-Type':'application/json'},body:JSON.stringify(d)}).then(r=>r.json()),
+    update: (id,d) => fetch(_apiBase+'/categories/'+id,{method:'PATCH',headers:{'Authorization':'Bearer '+(localStorage.getItem('sz_token')||''),'Content-Type':'application/json'},body:JSON.stringify(d)}).then(r=>r.json()),
+    delete: (id) => fetch(_apiBase+'/categories/'+id,{method:'DELETE',headers:{'Authorization':'Bearer '+(localStorage.getItem('sz_token')||'')}}).then(r=>r.json())
+  };
+}
