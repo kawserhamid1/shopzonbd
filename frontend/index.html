@@ -1154,6 +1154,22 @@ if(isLoggedIn()){
 // ===== INIT =====
 loadProducts();
 Cart.badge();
+
+// Load dynamic categories
+async function loadDynamicCategories(){
+  try{
+    const data=await CategoriesAPI.getAll();
+    const cats=data.categories||[];
+    const bar=document.getElementById('catBar');
+    if(!bar)return;
+    let html='<button class="cat-btn active" onclick="filterCat(\'All\',this)">All</button>';
+    cats.filter(c=>c.name!=='Uncategorized').forEach(c=>{
+      html+=`<button class="cat-btn" onclick="filterCat('${c.name}',this)">${c.emoji||'📦'} ${c.name}</button>`;
+    });
+    bar.innerHTML=html;
+  }catch(e){}
+}
+loadDynamicCategories();
 </script>
 </body>
 </html>
