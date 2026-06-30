@@ -387,7 +387,7 @@ function renderProducts(products){
     <div class="product-card">
       ${p.badge?`<span class="product-badge">${p.badge}</span>`:''}
       <button class="product-wish ${Wishlist.has(p.id)?'active':''}" onclick="wishToggle(${p.id})">${Wishlist.has(p.id)?'❤️':'🤍'}</button>
-      <div class="product-img">${p.image||'📦'}</div>
+      <div class="product-img">${((p.image||'�').startsWith('http://')||(p.image||'📦').startsWith('https://'))?`<img src="${p.image}" style="width:100%;height:100%;object-fit:cover;border-radius:12px 12px 0 0">`:(p.image||'�')}</div>
       <div class="product-info">
         <div class="product-brand">${p.brand}</div>
         <div class="product-name" onclick="openProdModal(${p.id})" style="cursor:pointer">${p.name}</div>
@@ -429,7 +429,7 @@ function renderCart(){
   if(!items.length){c.innerHTML='<div class="cart-empty"><span>🛒</span>Your cart is empty</div>';document.getElementById('cartTotal').textContent='$0.00';return}
   c.innerHTML=items.map(i=>`
     <div class="cart-item">
-      <div class="cart-item-img">${i.image||'📦'}</div>
+      <div class="cart-item-img">${((i.image||'📦').startsWith('http://')||(i.image||'📦').startsWith('https://'))?`<img src="${i.image}" style="width:100%;height:100%;object-fit:cover;border-radius:8px">`:i.image||'�'}</div>
       <div class="cart-item-info">
         <div class="cart-item-name">${i.name}</div>
         <div class="cart-item-price">${fmt(i.price)}</div>
@@ -469,7 +469,7 @@ function toggleWishlist(){
   const w=Wishlist.get();
   if(!w.length)return showToast('Wishlist is empty','info');
   let html='<h2 style="padding:16px 20px;font-size:18px;font-weight:700;border-bottom:1px solid #f1f5f9">❤️ Wishlist</h2><div style="padding:12px 20px">';
-  w.forEach(p=>{html+=`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f8fafc"><span style="font-size:24px">${p.image||'📦'}</span><span style="flex:1;font-size:13px;font-weight:600">${p.name}</span><span style="font-weight:700;color:#4f46e5">${fmt(p.price)}</span></div>`});
+  w.forEach(p=>{const img=p.image||'📦';const imgHtml=(img.startsWith('http://')||img.startsWith('https://'))?`<img src="${img}" style="width:32px;height:32px;border-radius:6px;object-fit:cover">`:`<span style="font-size:24px">${img}</span>`;html+=`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f8fafc">${imgHtml}<span style="flex:1;font-size:13px;font-weight:600">${p.name}</span><span style="font-weight:700;color:#4f46e5">${fmt(p.price)}</span></div>`});
   html+='</div>';
   document.getElementById('ordersContent').innerHTML=html;
   document.getElementById('ordersModal').classList.add('open');
@@ -480,7 +480,7 @@ function openProdModal(id){
   const p=allProducts.find(x=>x.id==id);
   if(!p)return;
   document.getElementById('prodModalContent').innerHTML=`
-    <div class="modal-img">${p.image||'📦'}</div>
+    <div class="modal-img">${((p.image||'📦').startsWith('http://')||(p.image||'📦').startsWith('https://'))?`<img src="${p.image}" style="width:100%;height:200px;object-fit:cover">`:(p.image||'📦')}</div>
     <div class="modal-body">
       <div class="modal-brand">${p.brand}</div>
       <div class="modal-name">${p.name}</div>

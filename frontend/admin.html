@@ -413,7 +413,7 @@ tr:hover td{background:#f8fafc}
         <div class="form-group"><label>Original Price ($)</label><input id="apOrigPrice" type="number" step="0.01" placeholder="129.99"></div>
         <div class="form-group"><label>Cost ($)</label><input id="apCost" type="number" step="0.01" placeholder="50.00"></div>
         <div class="form-group"><label>Stock Qty</label><input id="apStock" type="number" placeholder="100"></div>
-        <div class="form-group"><label>Image Emoji</label><input id="apImage" placeholder="📱"></div>
+        <div class="form-group"><label>Image Emoji or URL</label><input id="apImage" placeholder="📱 or https://example.com/img.jpg"><small style="font-size:11px;color:#94a3b8">Paste image URL or emoji</small></div>
         <div class="form-group"><label>SKU</label><input id="apSku" placeholder="auto-generate"></div>
       </div>
       <div class="form-group" style="margin-top:12px"><label>Description</label><textarea id="apDesc" rows="2" placeholder="Short product description..." style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit"></textarea></div>
@@ -559,7 +559,13 @@ function loadProducts(){
   });
 }
 function renderProducts(prods){
-  document.getElementById('prodTable').innerHTML=prods.map(p=>`<tr><td><input type="checkbox" class="prod-check" value="${p._id}" onchange="updateSelected()"></td><td>${p.image||'📦'}</td><td><strong>${p.name}</strong></td><td>${p.brand}</td><td>${p.category}</td><td>$${p.price.toFixed(2)}</td><td style="color:${p.stock<=8?'#dc2626':'inherit'};font-weight:${p.stock<=8?'700':'400'}">${p.stock}</td><td>${p.sold}</td><td><button class="btn btn-primary btn-xs" onclick="editProd('${p._id}')">�️</button> <button class="btn btn-warning btn-xs" onclick="openRestock('${p._id}')">�</button> <button class="btn btn-danger btn-xs" onclick="deleteProd('${p._id}')">🗑️</button></td></tr>`).join('');
+  document.getElementById('prodTable').innerHTML=prods.map(p=>{
+    const img=p.image||'�';
+    const imgHtml=(img.startsWith('http://')||img.startsWith('https://'))
+      ?`<img src="${img}" style="width:32px;height:32px;border-radius:6px;object-fit:cover">`
+      :`<span style="font-size:24px">${img}</span>`;
+    return`<tr><td><input type="checkbox" class="prod-check" value="${p._id}" onchange="updateSelected()"></td><td>${imgHtml}</td><td><strong>${p.name}</strong></td><td>${p.brand}</td><td>${p.category}</td><td>$${p.price.toFixed(2)}</td><td style="color:${p.stock<=8?'#dc2626':'inherit'};font-weight:${p.stock<=8?'700':'400'}">${p.stock}</td><td>${p.sold}</td><td><button class="btn btn-primary btn-xs" onclick="editProd('${p._id}')">�️</button> <button class="btn btn-warning btn-xs" onclick="openRestock('${p._id}')">�</button> <button class="btn btn-danger btn-xs" onclick="deleteProd('${p._id}')">🗑️</button></td></tr>`;
+  }).join('');
 }
 function filterProducts(q){
   const f=allProducts.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())||p.brand.toLowerCase().includes(q.toLowerCase()));
