@@ -1124,6 +1124,73 @@ Cart.badge();
     showToast(msg);
   }
 
+  // ===== CSV EXPORT =====
+  function exportCSV(){ window.location.href = API+'/orders/export/csv'; }
+  function exportCustomersCSV(){ window.location.href = API+'/orders/export/customers'; }
+
+  // ===== COUPONS =====
+  async function loadCoupons(){
+    try{
+      const data=await CouponsAPI.getAll();
+      const coupons=data.coupons||[];
+      document.getElementById('couponList').innerHTML=coupons.length ? coupons.map(c=>'<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f1f5f9"><span style="font-weight:700;color:#4f46e5;min-width:100px">' + c.code + '</span><span style="flex:1;font-size:12px">' + (c.discount_type==='percent'?c.discount_value+'% off':'$'+c.discount_value+' off') + (c.min_order?' (min $'+c.min_order+')':'') + '</span><span style="font-size:12px;color:' + (c.status==='active'?'#15803d':'#dc2626') + '">' + c.status + '</span>' + (c.expiry?'<span style="font-size:11px;color:#94a3b8"> exp:'+c.expiry+'</span>':'') + '<button class="btn btn-danger btn-xs" onclick="deleteCoupon(\'' + c.id + '\')">🗑️</button></div>').join('') : '<p style="color:#94a3b8;text-align:center;padding:12px">No coupons yet</p>';
+    }catch(e){}
+  }
+  async function createCoupon(){
+    const code=document.getElementById('couponCode').value.trim();
+    const discount_value=+document.getElementById('couponValue').value;
+    if(!code||!discount_value)return toast('Code & Value required!','error');
+    try{
+      const data=await CouponsAPI.create({code,discount_type:document.getElementById('couponType').value,discount_value,expiry:document.getElementById('couponExpiry').value||null,min_order:+document.getElementById('couponMinOrder').value||0,max_uses:+document.getElementById('couponMaxUses').value||0});
+      if(data.error)return toast(data.error,'error');
+      toast('Coupon created! ✅');
+      ['couponCode','couponValue','couponExpiry','couponMinOrder','couponMaxUses'].forEach(id=>{document.getElementById(id).value='';});
+      loadCoupons();
+    }catch(e){toast('Failed','error');}
+  }
+  async function deleteCoupon(id){
+    if(!confirm('Delete this coupon?'))return;
+    try{await CouponsAPI.delete(id);toast('Deleted');loadCoupons();}catch(e){}
+  }
+
+  // ===== BANNERS =====
+  async function loadBanners(){
+    try{
+      const s=await SettingsAPI.get();
+      const banners=s.banners||[];
+      document.getElementById('bannerList').innerHTML=banners.map(function(b,i){return '<div style="border:1px solid #f1f5f9;border-radius:8px;padding:12px;margin-bottom:10px;background:'+(b.active?'#f8fafc':'#fef2f2')+'"><div style="display:flex;gap:8px;margin-bottom:8px"><input value="'+b.title+'" id="bn'+i+'_t" style="flex:1;padding:6px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px"><input value="'+b.subtitle+'" id="bn'+i+'_s" style="flex:2;padding:6px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px"><input type="color" value="'+b.color+'" id="bn'+i+'_c" style="width:36px;height:32px;padding:0;border:none"></div><div style="display:flex;gap:6px"><button class="btn btn-primary btn-xs" onclick="updateBanner('+i+')">💾 Save</button><button style="padding:4px 12px;background:'+(b.active?'#dcfce7':'#fee2e2')+';color:'+(b.active?'#15803d':'#dc2626')+';border:none;border-radius:6px;cursor:pointer;font-size:12px" onclick="toggleBanner('+i+')">'+(b.active?'✅ Active':'❌ Off')+'</button></div></div>';}).join('');
+    }catch(e){}
+  }
+  async function updateBanner(i){
+    try{
+      const s=await SettingsAPI.get();
+      const banners=s.banners||[];
+      if(banners[i]){
+        banners[i].title=document.getElementById('bn'+i+'_t').value;
+        banners[i].subtitle=document.getElementById('bn'+i+'_s').value;
+        banners[i].color=document.getElementById('bn'+i+'_c').value;
+        await SettingsAPI.update({banners});
+        toast('Banner saved!');loadBanners();
+      }
+    }catch(e){toast('Failed','error');}
+  }
+  async function toggleBanner(i){
+    try{
+      const s=await SettingsAPI.get();
+      const banners=s.banners||[];
+      if(banners[i])banners[i].active=!banners[i].active;
+      await SettingsAPI.update({banners});
+      loadBanners();
+    }catch(e){}
+  }
+
+  // Load coupons+banners when settings page opens
+  const origShowPage=showPage;
+  showPage=function(name,el){
+    origShowPage(name,el);
+    if(name==='settings'){loadCoupons();loadBanners();}
+  };
+
   </script>
   </body>
   </html>

@@ -3,7 +3,6 @@ const path = require('path');
 
 const FILE = path.join(__dirname, 'data', 'settings.json');
 
-// Ensure directory exists
 const dir = path.dirname(FILE);
 if (!fs.existsSync(dir)) {
   fs.mkdirSync(dir, { recursive: true });
@@ -14,7 +13,9 @@ function readSettings() {
     if (!fs.existsSync(FILE)) return getDefaultSettings();
     return JSON.parse(fs.readFileSync(FILE, 'utf8'));
   } catch (e) {
-    return getDefault}
+    return getDefaultSettings();
+  }
+}
 
 function writeSettings(data) {
   fs.writeFileSync(FILE, JSON.stringify(data, null, 2));
