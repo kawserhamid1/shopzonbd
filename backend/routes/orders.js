@@ -56,4 +56,33 @@ router.patch('/:id/status', adminAuth, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// GET export orders as CSV
+router.get('/export/csv', adminAuth, async (req, res) => {
+  try {
+    const orders = await Order.find().sort({ createdAt: -1 });
+    let csv = 'Order ID,Customer,Email,Total,Status,Payment,Date\n';
+    orders.forEach(o => {
+      csv += `"${o.id}","${o.customer_name||''}","${o.customer_email||''}",${o.total||0},"${o.status}","${o.payment_method||''}","${o.createdAt?new Date(o.createdAt).toISOString():''}"\n`;
+    });
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="orders.csv"');
+    res.send(csv);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// GET export customers as CSV
+router.get('/export/customers', adminAuth, async (req, res) => {
+  try {
+    const { Customer } = require('../models');
+    const customers = await Customer.find().sort({ createdAt: -1 });
+    let csv = 'Name,Email,Phone,Status,Orders,Total Spent\n';
+    customers.forEach(c => {
+      csv += `"${c.name||''}","${c.email||''}","${c.phone||''}","${c.status||''}",${c.order_count||0},${c.total_spent||0}\n`;
+    });
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="customers.csv"');
+    res.send(csv);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 module.exports = router;

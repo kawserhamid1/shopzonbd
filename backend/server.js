@@ -24,6 +24,7 @@ app.use('/api/payments',  require('./routes/payments'));
 app.use('/api/refunds',   require('./routes/refunds'));
 app.use('/api/categories',require('./routes/categories'));
 app.use('/api/settings',  require('./routes/settings'));
+app.use('/api/coupons',   require('./routes/coupons'));
 app.use('/api/reset',    require('./routes/reset'));
 
 app.get('/api/health', (req, res) =>

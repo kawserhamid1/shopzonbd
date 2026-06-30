@@ -1,32 +1,44 @@
 const fs = require('fs');
 const path = require('path');
 
-const STORE_PATH = path.join(__dirname, 'data', 'settings.json');
+const FILE = path.join(__dirname, 'data', 'settings.json');
+
+// Ensure directory exists
+const dir = path.dirname(FILE);
+if (!fs.existsSync(dir)) {
+  fs.mkdirSync(dir, { recursive: true });
+}
 
 function readSettings() {
   try {
-    if (!fs.existsSync(STORE_PATH)) {
-      const defaults = {
-        termsAndConditions: 'By using ShopZone, you agree to the following terms:\n\n1. All orders are subject to product availability.\n2. Prices may change without prior notice.\n3. Returns are subject to our 30-day return policy.\n4. We reserve the right to cancel any order.\n5. User data is protected according to our privacy policy.',
-        refundPolicy: '30-day return policy. Items must be unused and in original packaging. Free return shipping for defective items. Refunds processed within 5-7 business days.',
-        freeShippingThreshold: 100,
-        standardShippingCost: 9.99,
-        expressShippingCost: 19.99,
-        taxRate: 8
-      };
-      writeSettings(defaults);
-      return defaults;
-    }
-    return JSON.parse(fs.readFileSync(STORE_PATH, 'utf8'));
-  } catch {
-    return {};
-  }
-}
+    if (!fs.existsSync(FILE)) return getDefaultSettings();
+    return JSON.parse(fs.readFileSync(FILE, 'utf8'));
+  } catch (e) {
+    return getDefault}
 
 function writeSettings(data) {
-  const dir = path.dirname(STORE_PATH);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(STORE_PATH, JSON.stringify(data, null, 2));
+  fs.writeFileSync(FILE, JSON.stringify(data, null, 2));
+}
+
+function getDefaultSettings() {
+  return {
+    termsAndConditions: '',
+    refundPolicy: '',
+    freeShippingThreshold: 100,
+    standardCost: 9.99,
+    expressCost: 19.99,
+    processingTime: '1-2 business days',
+    deliveryTime: '3-5 business days',
+    shippingZones: ['Local', 'Domestic', 'International'],
+    banners: [
+      { id: 'hero1', title: 'Summer Sale', subtitle: 'Up to 50% off on selected items. Limited time only!', cta: 'Shop Now', color: '#4338ca', active: true },
+      { id: 'hero2', title: 'New Electronics', subtitle: 'Latest smartphones, laptops & gadgets just arrived', cta: 'Explore', color: '#1e1b4b', active: true },
+      { id: 'hero3', title: 'Free Shipping', subtitle: 'Free shipping on orders over $100', cta: 'Learn More', color: '#0f172a', active: true }
+    ],
+    maintenanceMode: false,
+    couponDiscount: 0,
+    couponCode: ''
+  };
 }
 
 module.exports = { readSettings, writeSettings };
