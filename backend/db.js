@@ -1,7 +1,7 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 const bcrypt   = require('bcryptjs');
-const { Product, Customer, Order, RegisteredUser, Admin } = require('./models');
+const { Product, Customer, Order, RegisteredUser, Admin, Category } = require('./models');
 
 async function connectDB() {
   try {
