@@ -189,13 +189,14 @@ tr:hover td{background:#f8fafc}
     </div>
     <nav class="sidebar-nav">
       <div class="nav-item active" onclick="showPage('dashboard',this)"><span class="icon">📊</span> Dashboard</div>
-      <div class="nav-item" onclick="showPage('products',this)"><span class="icon">📦</span> Products</div>
+      <div class="nav-item" onclick="showPage('products',this)"><span class="icon">�</span> Products</div>
+      <div class="nav-item" onclick="showPage('categories',this)"><span class="icon">�️</span> Categories</div>
       <div class="nav-item" onclick="showPage('orders',this)"><span class="icon">🛍️</span> Orders</div>
-      <div class="nav-item" onclick="showPage('returns',this)"><span class="icon">🔄</span> Returns</div>
-      <div class="nav-item" onclick="showPage('inventory',this)"><span class="icon">📋</span> Inventory</div>
-      <div class="nav-item" onclick="showPage('analytics',this)"><span class="icon">📈</span> Analytics</div>
-      <div class="nav-item" onclick="showPage('customers',this)"><span class="icon">👥</span> Customers</div>
-      <div class="nav-item" onclick="showPage('settings',this)"><span class="icon">⚙️</span> Settings</div>
+      <div class="nav-item" onclick="showPage('returns',this)"><span class="icon">�</span> Returns</div>
+      <div class="nav-item" onclick="showPage('inventory',this)"><span class="icon">�</span> Inventory</div>
+      <div class="nav-item" onclick="showPage('analytics',this)"><span class="icon">�</span> Analytics</div>
+      <div class="nav-item" onclick="showPage('customers',this)"><span class="icon">�</span> Customers</div>
+      <div class="nav-item" onclick="showPage('settings',this)"><span class="icon">�️</span> Settings</div>
     </nav>
     <div class="sidebar-footer">
       <div class="avatar">K</div>
@@ -254,6 +255,17 @@ tr:hover td{background:#f8fafc}
             </div>
           </div>
           <div class="card-body"><div class="table-wrap"><table><thead><tr><th><input type="checkbox" id="selectAllProducts" onchange="toggleSelectAll()" title="Select all"></th><th>Image</th><th>Product</th><th>Brand</th><th>Category</th><th>Price</th><th>Stock</th><th>Sold</th><th>Actions</th></tr></thead><tbody id="prodTable"></tbody></table></div></div>
+        </div>
+      </div>
+
+      <!-- CATEGORIES -->
+      <div class="page" id="page-categories">
+        <div class="card">
+          <div class="card-header">
+            <h3>🏷️ Categories</h3>
+            <button class="btn btn-primary btn-sm" onclick="openAddCategoryModal()">+ Add Category</button>
+          </div>
+          <div class="card-body"><div class="table-wrap"><table><thead><tr><th>Emoji</th><th>Name</th><th>Color</th><th>Created</th><th>Actions</th></tr></thead><tbody id="catTable"></tbody></table></div></div>
         </div>
       </div>
 
@@ -415,6 +427,23 @@ tr:hover td{background:#f8fafc}
 </div>
 
 <!-- RESTOCK MODAL -->
+<!-- ADD CATEGORY MODAL -->
+<div class="modal-overlay" id="addCategoryModal">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-header"><h3>➕ Add Category</h3><button class="modal-close" onclick="closeModal('addCategoryModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Category Name *</label><input id="catName" placeholder="e.g. Sports"></div>
+      <div class="form-group"><label>Emoji</label><input id="catEmoji" placeholder="�️"></div>
+      <div class="form-group"><label>Color</label><input id="catColor" type="color" value="#4f46e5" style="width:100%;height:40px"></div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px">
+        <button class="btn btn-sm" style="background:#f1f5f9;width:auto" onclick="closeModal('addCategoryModal')">Cancel</button>
+        <button class="btn btn-success btn-sm" onclick="submitNewCategory()">✅ Add</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESTOCK MODAL -->
 <div class="modal-overlay" id="restockModal">
   <div class="modal" style="max-width:380px">
     <div class="modal-header"><h3>📦 Restock Product</h3><button class="modal-close" onclick="closeModal('restockModal')">✕</button></div>
@@ -463,10 +492,11 @@ function showPage(name,el){
   document.getElementById('page-'+name).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   if(el)el.classList.add('active');
-  const titles={dashboard:'Dashboard',products:'Products',orders:'Orders',returns:'Returns',inventory:'Inventory',analytics:'Analytics',customers:'Customers',settings:'Settings'};
+  const titles={dashboard:'Dashboard',products:'Products',categories:'Categories',orders:'Orders',returns:'Returns',inventory:'Inventory',analytics:'Analytics',customers:'Customers',settings:'Settings'};
   document.getElementById('pageTitle').textContent=titles[name]||name;
   if(name==='dashboard')loadDashboard();
   if(name==='products')loadProducts();
+  if(name==='categories')loadCategories();
   if(name==='orders')loadOrders();
   if(name==='returns')loadReturns();
   if(name==='inventory')loadInventory();
@@ -537,6 +567,57 @@ function filterProducts(q){
 }
 
 // ===== ADD NEW PRODUCT =====
+
+// ===== CATEGORIES =====
+async function loadCategories(){
+  try{
+    const data=await CategoriesAPI.getAll();
+    const cats=data.categories||[];
+    document.getElementById('catTable').innerHTML=cats.map(c=>`
+      <tr>
+        <td>${c.emoji}</td>
+        <td><strong>${c.name}</strong></td>
+        <td><span style="display:inline-block;width:20px;height:20px;border-radius:4px;background:${c.color};vertical-align:middle;margin-right:6px"></span>${c.color}</td>
+        <td style="font-size:12px;color:#64748b">${c.createdAt?new Date(c.createdAt).toLocaleDateString():'—'}</td>
+        <td><button class="btn btn-primary btn-xs" onclick="editCategory('${c._id}')">Edit</button> <button class="btn btn-danger btn-xs" onclick="deleteCategory('${c._id}','${c.name}')">�️</button></td>
+      </tr>`).join('');
+  }catch(e){
+    toast('Failed to load categories','error');
+  }
+}
+function openAddCategoryModal(){
+  document.getElementById('addCategoryModal').classList.add('open');
+}
+async function submitNewCategory(){
+  const name=document.getElementById('catName').value.trim();
+  if(!name)return toast('Category name required!','error');
+  const d={name,emoji=document.getElementById('catEmoji').value.trim()||'�',color:document.getElementById('catColor').value||'#4f46e5'};
+  try{
+    const data=await CategoriesAPI.create(d);
+    if(data.error)return toast(data.error,'error');
+    toast('Category added! ✅');
+    document.getElementById('addCategoryModal').classList.remove('open');
+    document.getElementById('catName').value='';
+    loadCategories();
+  }catch(e){toast('Failed to add','error');}
+}
+async function editCategory(id){
+  const name=prompt('New category name:');
+  if(!name||!name.trim())return;
+  const data=await CategoriesAPI.update(id,{name:name.trim()});
+  if(data.error)return toast(data.error,'error');
+  toast('Category updated!');
+  loadCategories();
+}
+async function deleteCategory(id,name){
+  if(!confirm(`Delete category "${name}"? Products will become "Uncategorized".`))return;
+  try{
+    const data=await CategoriesAPI.delete(id);
+    if(data.error)return toast(data.error,'error');
+    toast(data.message||'Category deleted!');
+    loadCategories();
+  }catch(e){toast('Failed to delete','error');}
+}
 async function submitNewProduct(){
   const name=document.getElementById('apName').value.trim();
   const price=+document.getElementById('apPrice').value;

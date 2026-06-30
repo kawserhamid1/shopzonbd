@@ -86,6 +86,19 @@ async function seedData() {
     console.log(`✅ ${ordersWithoutDate} orders updated with createdAt`);
   }
 
+  // Seed default categories
+  const categoryCount = await Category.countDocuments();
+  if (categoryCount === 0) {
+    await Category.insertMany([
+      { name: 'Electronics', emoji: '�', color: '#3b82f6' },
+      { name: 'Fashion', emoji: '👗', color: '#ec4899' },
+      { name: 'Home & Kitchen', emoji: '🏠', color: '#f59e0b' },
+      { name: 'Toys & Games', emoji: '🎮', color: '#8b5cf6' },
+      { name: 'Uncategorized', emoji: '📦', color: '#6b7280' }
+    ]);
+    console.log('✅ Categories seeded (5)');
+  }
+
   console.log('\n🚀 Database ready on MongoDB Atlas!\n');
 }
 

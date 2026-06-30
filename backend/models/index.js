@@ -71,4 +71,13 @@ const Order          = mongoose.model('Order', orderSchema);
 const RegisteredUser = mongoose.model('RegisteredUser', registeredUserSchema);
 const Admin          = mongoose.model('Admin', adminSchema);
 
-module.exports = { Product, Customer, Order, RegisteredUser, Admin };
+// ── Category Schema ────────────────────────────────────────────
+const categorySchema = new mongoose.Schema({
+  name:  { type: String, required: true, unique: true },
+  emoji: { type: String, default: '📦' },
+  color: { type: String, default: '#4f46e5' }
+}, { timestamps: true });
+
+const Category = mongoose.model('Category', categorySchema);
+
+module.exports = { Product, Customer, Order, RegisteredUser, Admin, Category };

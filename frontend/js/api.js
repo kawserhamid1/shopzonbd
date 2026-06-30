@@ -36,6 +36,12 @@ const AdminAuthAPI  = { login:(e,p) => fetch(API+'/auth/login',{method:'POST',he
 const RefundsAPI = {
   getAll: () => fetch(API+'/refunds',{headers:Auth.headers()}).then(r=>r.json())
 };
+const CategoriesAPI = {
+  getAll: () => fetch(API+'/categories').then(r=>r.json()),
+  create: (d) => fetch(API+'/categories',{method:'POST',headers:Auth.headers(),body:JSON.stringify(d)}).then(r=>r.json()),
+  update: (id,d) => fetch(API+'/categories/'+id,{method:'PATCH',headers:Auth.headers(),body:JSON.stringify(d)}).then(r=>r.json()),
+  delete: (id) => fetch(API+'/categories/'+id,{method:'DELETE',headers:Auth.headers()}).then(r=>r.json())
+};
 const SettingsAPI = {
   get: () => fetch(API+'/settings').then(r=>r.json()),
   getTerms: () => fetch(API+'/settings/terms').then(r=>r.json()),
