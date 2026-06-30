@@ -618,8 +618,17 @@ async function deleteCategory(id,name){
     loadCategories();
   }catch(e){toast('Failed to delete','error');}
 }
-async function submitNewProduct(){
-  const name=document.getElementById('apName').value.trim();
+
+function openAddProductModal(){
+    document.getElementById('addProductModal').classList.add('open');
+    ['apName','apBrand','apPrice','apOrigPrice','apCost','apStock','apImage','apSku','apDesc','apTags'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el)el.value='';
+    });
+  }
+
+  async function submitNewProduct(){
+    const name=document.getElementById('apName').value.trim();
   const price=+document.getElementById('apPrice').value;
   if(!name||!price)return toast('Name & Price required!','error');
   const tags=document.getElementById('apTags').value.split(',').map(t=>t.trim()).filter(t=>t);
